@@ -68,9 +68,20 @@
 
     <!-- ②収入行為 -->
     <section id="form_shuunyuu" class="formBlock" style="display:none;">
-      <label>項</label><input id="r_kou" type="text">
-      <label>目</label><input id="r_moku" type="text">
-      <label>節</label><input id="r_setsu" type="text">
+      <div class="triple">
+  <div class="field">
+    <label>項</label>
+    <input id="r_kou" type="text" placeholder="例：諸収入">
+  </div>
+  <div class="field">
+    <label>目</label>
+    <input id="r_moku" type="text" placeholder="例：雑入">
+  </div>
+  <div class="field">
+    <label>節</label>
+    <input id="r_setsu" type="text" placeholder="例：受取利息">
+  </div>
+</div>
       <label>収入金額</label><input id="r_amount" type="number" inputmode="numeric" min="0" step="1">
       <label>件名</label><input id="r_title" type="text">
       <label>内容</label><textarea id="r_content" rows="6"></textarea>
