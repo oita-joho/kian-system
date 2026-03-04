@@ -247,3 +247,19 @@ window.addEventListener("load", () => {
 
   renderDraftList();
 });
+// 区分で表示ブロックを切替
+function switchKbnBlock() {
+  const kbn = document.getElementById("kbn").value;
+  document.querySelectorAll(".kbn-block").forEach(block => {
+    const active = block.dataset.kbn === kbn;
+    block.classList.toggle("is-active", active);
+
+    // ★重要：非表示ブロックの入力は送らない・保存対象から外したい場合は disabled にする
+    block.querySelectorAll("input, textarea, select").forEach(el => {
+      el.disabled = !active;
+    });
+  });
+}
+
+document.getElementById("kbn").addEventListener("change", switchKbnBlock);
+switchKbnBlock(); // 初期表示
