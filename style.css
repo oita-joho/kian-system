@@ -105,3 +105,27 @@ hr{
 /* ===== ブロックを非表示にする ===== */
 .kbn-block { display: none; margin-top: 12px; }
 .kbn-block.is-active { display: block; }
+/* ===== 項・目・節を横並び（短い枠） ===== */
+.triple{
+  display:flex;
+  gap:10px;
+  margin-top:10px;
+}
+
+.triple .field{
+  flex:1;
+  min-width:0;
+}
+
+.triple .field label{
+  margin-top:0;   /* 横並びブロック内では詰める */
+}
+
+.triple .field input{
+  padding:8px;    /* 少し小さめ */
+}
+
+/* スマホでは縦並びに戻す */
+@media (max-width: 420px){
+  .triple{ flex-direction: column; }
+}
