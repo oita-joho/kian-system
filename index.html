@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>文書起案システム</title>
+  <link rel="stylesheet" href="./style.css" />
+</head>
+<body>
+  <main class="card">
+    <h1>文書起案システム</h1>
+
+    <!-- 下書き番号（複数保存） -->
+    <label>下書き番号</label>
+    <input id="draftNo" type="text" placeholder="例：001 / 2年-01 / A-1">
+
+    <div class="row">
+      <button id="saveDraftBtn" type="button" class="secondary">番号で下書き保存</button>
+      <button id="loadDraftBtn" type="button" class="secondary">番号で下書き復元</button>
+      <button id="deleteDraftBtn" type="button" class="secondary">番号の下書き削除</button>
+    </div>
+
+    <div class="row">
+      <button id="listDraftBtn" type="button" class="secondary">下書き一覧</button>
+    </div>
+
+    <pre class="status" id="draftList"></pre>
+
+    <hr style="margin:12px 0;border:0;border-top:1px solid #eee;">
+
+    <!-- 起案入力 -->
+    <label>区分</label>
+    <select id="category">
+      <option value="稟議">稟議</option>
+      <option value="依頼">依頼</option>
+      <option value="報告">報告</option>
+      <option value="申請">申請</option>
+    </select>
+
+    <label>件名</label>
+    <input id="title" type="text" placeholder="例：備品購入について" />
+
+    <label>内容</label>
+    <textarea id="content" rows="8" placeholder="目的・背景・金額・期日など"></textarea>
+
+    <label>提出者</label>
+    <input id="name" type="text" placeholder="例：〇〇（氏名）" />
+
+    <div class="row">
+      <button id="sendBtn" type="button">送信</button>
+      <button id="clearBtn" type="button" class="secondary">クリア</button>
+    </div>
+
+    <p class="status" id="status"></p>
+  </main>
+
+  <script src="./script.js"></script>
+</body>
+</html>
