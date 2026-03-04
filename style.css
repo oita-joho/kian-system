@@ -124,7 +124,14 @@ hr{
 .triple .field input{
   padding:8px;    /* 少し小さめ */
 }
+.triple{
+display:flex !important;
+gap:10px;
+}
 
+.triple .field{
+flex:1;
+}
 /* スマホでは縦並びに戻す */
 @media (max-width: 420px){
   .triple{ flex-direction: column; }
