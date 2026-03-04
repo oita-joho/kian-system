@@ -39,9 +39,20 @@
 
     <!-- ①支出負担行為 -->
     <section id="form_shishutsu" class="formBlock">
-      <label>項</label><input id="s_kou" type="text">
-      <label>目</label><input id="s_moku" type="text">
-      <label>節</label><input id="s_setsu" type="text">
+     <div class="triple">
+  <div class="field">
+    <label>項</label>
+    <input id="s_kou" type="text" placeholder="例：教育費">
+  </div>
+  <div class="field">
+    <label>目</label>
+    <input id="s_moku" type="text" placeholder="例：備品購入費">
+  </div>
+  <div class="field">
+    <label>節</label>
+    <input id="s_setsu" type="text" placeholder="例：消耗品費">
+  </div>
+</div>
       <label>支出金額</label><input id="s_amount" type="number" inputmode="numeric" min="0" step="1">
       <label>件名</label><input id="s_title" type="text">
       <label>内容</label><textarea id="s_content" rows="6"></textarea>
