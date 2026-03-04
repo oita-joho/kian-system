@@ -5,7 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>文書起案システム</title>
   <link rel="stylesheet" href="./style.css" />
-  <script src="./script.js"></script>
 </head>
 <body>
   <main class="card">
@@ -13,11 +12,11 @@
 
     <!-- 下書き番号（複数保存） -->
     <label>下書き番号</label>
-    <input id="draftNo" type="text" placeholder="例：001">
+    <input id="draftNo" type="text" placeholder="例：001 / 2年-01 / A-1">
 
     <div class="row">
-      <button id="saveDraftBtn" type="button" class="secondary">番号で下書き保存</button></br><hr>
-      <button id="loadDraftBtn" type="button" class="secondary">番号で下書き復元</button></br>
+      <button id="saveDraftBtn" type="button" class="secondary">番号で下書き保存</button>
+      <button id="loadDraftBtn" type="button" class="secondary">番号で下書き復元</button>
       <button id="deleteDraftBtn" type="button" class="secondary">番号の下書き削除</button>
     </div>
 
@@ -27,68 +26,58 @@
 
     <pre class="status" id="draftList"></pre>
 
-    <hr style="margin:12px 0;border:0;border-top:1px solid #eee;">
+    <hr>
 
-    <!-- 起案入力 -->
-   <!-- 区分 -->
-<label for="kbn">区分</label>
-<select id="kbn" name="kbn">
-  <option value="ringi">稟議</option>
-  <option value="shuccho">出張申請</option>
-  <option value="bihin">備品購入</option>
-</select>
+    <!-- 区分 -->
+    <label>区分</label>
+    <select id="type">
+      <option value="shishutsu">① 支出負担行為</option>
+      <option value="shuunyuu">② 収入行為</option>
+      <option value="ringi">③ 稟議行為</option>
+    </select>
 
-<!-- ここから：区分別の入力ブロック -->
-<div class="kbn-block" data-kbn="ringi">
-  <label for="ringi_naiyou">内容（稟議）</label>
-  <textarea id="ringi_naiyou" name="ringi_naiyou" rows="8"
-    placeholder="【目的】&#10;【背景】&#10;【内容】&#10;【金額】円&#10;【期日】&#10;【備考】"></textarea>
+    <!-- ①支出負担行為 -->
+    <section id="form_shishutsu" class="formBlock">
+      <label>項</label><input id="s_kou" type="text">
+      <label>目</label><input id="s_moku" type="text">
+      <label>節</label><input id="s_setsu" type="text">
+      <label>支出金額</label><input id="s_amount" type="number" inputmode="numeric" min="0" step="1">
+      <label>件名</label><input id="s_title" type="text">
+      <label>内容</label><textarea id="s_content" rows="6"></textarea>
+      <label>支払先</label><input id="s_payee" type="text">
+      <label>支払方法</label>
+      <select id="s_method">
+        <option value="口座振込">口座振込</option>
+        <option value="現金">現金</option>
+        <option value="請求書払い">請求書払い</option>
+        <option value="その他">その他</option>
+      </select>
+    </section>
 
-  <label for="ringi_kingaku">金額（円）</label>
-  <input id="ringi_kingaku" name="ringi_kingaku" inputmode="numeric" placeholder="例：30000">
-  
-  <label for="ringi_kigen">希望期日</label>
-  <input id="ringi_kigen" name="ringi_kigen" type="date">
-</div>
+    <!-- ②収入行為 -->
+    <section id="form_shuunyuu" class="formBlock" style="display:none;">
+      <label>項</label><input id="r_kou" type="text">
+      <label>目</label><input id="r_moku" type="text">
+      <label>節</label><input id="r_setsu" type="text">
+      <label>収入金額</label><input id="r_amount" type="number" inputmode="numeric" min="0" step="1">
+      <label>件名</label><input id="r_title" type="text">
+      <label>内容</label><textarea id="r_content" rows="6"></textarea>
+      <label>納入者</label><input id="r_payer" type="text">
+      <label>納入方法</label>
+      <select id="r_method">
+        <option value="口座振込">口座振込</option>
+        <option value="現金">現金</option>
+        <option value="その他">その他</option>
+      </select>
+    </section>
 
-<div class="kbn-block" data-kbn="shuccho">
-  <label for="shuccho_naiyou">内容（出張）</label>
-  <textarea id="shuccho_naiyou" name="shuccho_naiyou" rows="8"
-    placeholder="【行先】&#10;【日程】&#10;【目的】&#10;【参加者】&#10;【旅費見込】円&#10;【備考】"></textarea>
-
-  <label for="shuccho_place">行先</label>
-  <input id="shuccho_place" name="shuccho_place" placeholder="例：大分市">
-
-  <label for="shuccho_from">出張開始</label>
-  <input id="shuccho_from" name="shuccho_from" type="date">
-
-  <label for="shuccho_to">出張終了</label>
-  <input id="shuccho_to" name="shuccho_to" type="date">
-
-  <label for="shuccho_cost">旅費見込（円）</label>
-  <input id="shuccho_cost" name="shuccho_cost" inputmode="numeric" placeholder="例：12000">
-</div>
-
-<div class="kbn-block" data-kbn="bihin">
-  <label for="bihin_naiyou">内容（備品購入）</label>
-  <textarea id="bihin_naiyou" name="bihin_naiyou" rows="8"
-    placeholder="【品名】&#10;【数量】&#10;【単価】円&#10;【合計】円&#10;【購入理由】&#10;【希望納期】&#10;【備考】"></textarea>
-
-  <label for="bihin_name">品名</label>
-  <input id="bihin_name" name="bihin_name" placeholder="例：プリンタ用トナー">
-
-  <label for="bihin_qty">数量</label>
-  <input id="bihin_qty" name="bihin_qty" inputmode="numeric" placeholder="例：2">
-
-  <label for="bihin_unit">単価（円）</label>
-  <input id="bihin_unit" name="bihin_unit" inputmode="numeric" placeholder="例：4500">
-
-  <label for="bihin_deadline">希望納期</label>
-  <input id="bihin_deadline" name="bihin_deadline" type="date">
-</div>
-<!-- ここまで：区分別ブロック -->
-    <label>提出者</label>
-    <input id="name" type="text" placeholder="例：〇〇（氏名）" />
+    <!-- ③稟議行為 -->
+    <section id="form_ringi" class="formBlock" style="display:none;">
+      <label>件名</label><input id="g_title" type="text">
+      <label>内容</label><textarea id="g_content" rows="8"></textarea>
+      <label>添付</label><input id="g_file" type="file">
+      <p style="font-size:12px;color:#555;margin:6px 0 0;">※添付は稟議行為のみ（1ファイル）</p>
+    </section>
 
     <div class="row">
       <button id="sendBtn" type="button">送信</button>
