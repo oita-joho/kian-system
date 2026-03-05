@@ -11,7 +11,30 @@ function ymd(){
   const pad = (n)=> String(n).padStart(2,"0");
   return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}`;
 }
+const MY_SIDE_KEY = "kian_my_side_v1";
 
+function mySide_(){
+  const r = document.querySelector('input[name="mySide"]:checked');
+  return r ? r.value : "A";
+}
+
+function getApproverInput_(){
+  const side = mySide_();
+  const name = (side==="A" ? $("approverNameA").value : $("approverNameB").value).trim();
+  const comment = (side==="A" ? $("commentA").value : $("commentB").value).trim();
+  return { side, name, comment };
+}
+
+function rememberSide_(){
+  localStorage.setItem(MY_SIDE_KEY, mySide_());
+}
+
+function restoreSide_(){
+  const s = localStorage.getItem(MY_SIDE_KEY);
+  if(!s) return;
+  const el = document.querySelector(`input[name="mySide"][value="${s}"]`);
+  if(el) el.checked = true;
+}
 async function post(payload){
   const res = await fetch(GAS_URL, {
     method:"POST",
