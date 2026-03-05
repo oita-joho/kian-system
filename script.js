@@ -5,7 +5,7 @@
 // ================================
 
 // ★ここをGASのWebアプリURLに差し替え
-const GAS_URL = "https://script.google.com/macros/s/AKfycbziq4OMAOF1JQH07FegfkWAfulIKxaHG1KkkAsJo_4jqFd9S4qbmntB6p84lCTW2oEw1Q/exec";
+const GAS_URL = "https://script.google.com/macros/s/AKfycby57Yaa5H5GAsjD9LieR94K6SbXgD9OhM5OroLlARsZ2nX9z9pjunlgZZ48DC0qDvxD/exec";
 
 function $(id) { return document.getElementById(id); }
 function setStatus(msg) { $("status").textContent = msg || ""; }
