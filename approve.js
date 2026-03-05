@@ -4,7 +4,7 @@
 // - action=approve: side=A/B を送って A/B 列に書く
 // ================================
 
-const GAS_URL = "PASTE_GAS_WEBAPP_URL_HERE"; // ★あなたの /exec を入れる
+const GAS_URL = "https://script.google.com/macros/s/AKfycbwdd39RWeXGAWdKMgXXGzrkC_wy76zo3N6X2PR7dukQzaHYHVG0M_3p1UyJz3Ioej2AzA/exec"; // ★あなたの /exec を入れる
 
 function $(id){ return document.getElementById(id); }
 function setStatus(msg){ $("status").textContent = msg || ""; }
