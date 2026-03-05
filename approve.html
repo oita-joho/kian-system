@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>承認ページ</title>
+  <link rel="stylesheet" href="./style.css" />
+</head>
+<body>
+  <main class="card">
+    <h1>承認ページ</h1>
+
+    <label>表示</label>
+    <select id="filter">
+      <option value="pending">未処理</option>
+      <option value="all">全て</option>
+      <option value="approved">承認</option>
+      <option value="rejected">差し戻し</option>
+    </select>
+
+    <div class="row">
+      <button id="loadBtn" type="button">読み込み</button>
+      <button id="refreshBtn" type="button" class="secondary">更新</button>
+    </div>
+
+    <p class="status" id="status"></p>
+    <div id="list"></div>
+  </main>
+
+  <script src="./approve.js"></script>
+</body>
+</html>
