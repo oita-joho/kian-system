@@ -20,7 +20,6 @@ function applyTypeUI() {
 
 function validate(payload) {
   if (payload.type === "shishutsu") {
-    if (!payload.kou || !payload.moku || !payload.setsu) return "未入力：項・目・節";
     if (!payload.title) return "未入力：件名";
     if (!payload.content) return "未入力：内容";
     if (!payload.amount) return "未入力：支出金額";
@@ -28,7 +27,6 @@ function validate(payload) {
     return "";
   }
   if (payload.type === "shuunyuu") {
-    if (!payload.kou || !payload.moku || !payload.setsu) return "未入力：項・目・節";
     if (!payload.title) return "未入力：件名";
     if (!payload.content) return "未入力：内容";
     if (!payload.amount) return "未入力：収入金額";
