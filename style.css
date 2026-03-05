@@ -114,22 +114,19 @@ button:disabled{
 max-width: 900px;
 margin: auto;
 }
-/* 必須項目マーク */
-label:has(+ input[required]),
-label:has(+ textarea[required]){
-color:#c62828;
-font-weight:600;
+
+/* ===== 必須：未入力を赤枠（確実版） ===== */
+input:required:invalid,
+textarea:required:invalid,
+select:required:invalid{
+  border: 2px solid #e53935 !important;
+  background: #fff5f5 !important;
 }
 
-/* 未入力エラー */
-input:invalid,
-textarea:invalid{
-border:2px solid #e53935;
-background:#fff5f5;
-}
-
-/* 入力OK */
-input:valid,
-textarea:valid{
-border:1px solid #4caf50;
+/* 入力済みは通常に戻す（緑枠は付けない） */
+input:required:valid,
+textarea:required:valid,
+select:required:valid{
+  border: 1px solid var(--line2, #d1d5db) !important;
+  background: #fff !important;
 }
