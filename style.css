@@ -114,3 +114,22 @@ button:disabled{
 max-width: 900px;
 margin: auto;
 }
+/* 必須項目マーク */
+label:has(+ input[required]),
+label:has(+ textarea[required]){
+color:#c62828;
+font-weight:600;
+}
+
+/* 未入力エラー */
+input:invalid,
+textarea:invalid{
+border:2px solid #e53935;
+background:#fff5f5;
+}
+
+/* 入力OK */
+input:valid,
+textarea:valid{
+border:1px solid #4caf50;
+}
