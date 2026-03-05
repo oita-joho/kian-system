@@ -241,3 +241,37 @@ select:required:invalid{
 @media (max-width: 560px){
   .triple{ flex-direction:column; }
 }
+/* 承認者A/B 2列 */
+.twoApprovers{
+  display:grid;
+  grid-template-columns: 1fr 1fr;
+  gap:12px;
+  margin-top:10px;
+}
+
+.approverBox{
+  border:1px solid var(--line);
+  border-radius:16px;
+  padding:12px;
+  background:#fff;
+}
+
+.approverHead{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:10px;
+  margin-bottom:6px;
+}
+
+.radio{
+  font-size:12px;
+  color:var(--muted);
+  display:flex;
+  align-items:center;
+  gap:6px;
+}
+
+@media (max-width: 700px){
+  .twoApprovers{ grid-template-columns: 1fr; }
+}
