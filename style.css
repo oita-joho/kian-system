@@ -275,3 +275,12 @@ select:required:invalid{
 @media (max-width: 700px){
   .twoApprovers{ grid-template-columns: 1fr; }
 }
+.row2{
+  display:grid;
+  grid-template-columns: 1fr 1fr;
+  gap:10px;
+  margin-top:10px;
+}
+.row2 button{
+  width:100%;
+}
