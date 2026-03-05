@@ -140,7 +140,50 @@ select:required:invalid{
   border: 2px solid #e53935 !important;
   background: #fff5f5 !important;
 }
+/* ============================
+   下書きボタン：4つ横並び（PC）
+   スマホ：2列
+============================ */
 
+/* 下書きボタン行だけをグリッド化（row全体が他でも使われている場合に備えて） */
+.row{
+  display:grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap:10px;
+  margin-top:14px;
+}
+
+/* ボタンを少し小さめ＆均一に */
+.row button{
+  width:100%;
+  padding:10px 12px;
+  font-size:14px;
+  border-radius:12px;
+}
+
+/* ホバーでわかりやすく */
+.row button:hover{
+  filter: brightness(0.95);
+}
+
+/* 下書き一覧だけ色を変える（黒以外） */
+.listBtn{
+  background:#e5e7eb !important;   /* 明るいグレー */
+  color:#111827 !important;
+  border:1px solid #d1d5db !important;
+}
+
+/* 下書き一覧ボタンのホバー */
+.listBtn:hover{
+  background:#d1d5db !important;
+}
+
+/* スマホは2列にして押しやすく */
+@media (max-width: 560px){
+  .row{
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
 /* スマホは縦並び */
 @media (max-width: 560px){
   .triple{ flex-direction:column; }
