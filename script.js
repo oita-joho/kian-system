@@ -3,7 +3,7 @@
 // ================================
 
 // ★ここをGASのWebアプリURLに差し替え
-const GAS_URL = "PASTE_GAS_WEBAPP_URL_HERE";
+const GAS_URL = "https://script.google.com/macros/s/AKfycbzR5kSUva_d-cx9R_6_J968AXRXi-7P4X7qt35Md6qrGXIlHgbmpv07JrI2n-uYTh-udw/exec";
 
 function $(id){ return document.getElementById(id); }
 function setStatus(msg){ $("status").textContent = msg || ""; }
