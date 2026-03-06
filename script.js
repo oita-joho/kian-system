@@ -45,60 +45,66 @@ function readFileAsDataURL(file){
 }
 
 async function buildPayload(){
+
   const type = $("type").value;
-  const seiriNo = v("seiriNo");
+  const seiriNo = $("seiriNo").value.trim();
 
-  if(type === "shishutsu"){
-    return {
-      action: "submit",
-      type,
-      seiriNo,
-      label: "支出負担行為",
-      kou: v("s_kou"),
-      moku: v("s_moku"),
-      setsu: v("s_setsu"),
-      title: v("s_title"),
-      content: v("s_content"),
-      amount: v("s_amount"),
-      payee: v("s_payee"),
-      method: $("s_method").value || ""
-    };
-  }
-
-  if(type === "shuunyuu"){
-    return {
-      action: "submit",
-      type,
-      seiriNo,
-      label: "収入行為",
-      kou: v("r_kou"),
-      moku: v("r_moku"),
-      setsu: v("r_setsu"),
-      title: v("r_title"),
-      content: v("r_content"),
-      amount: v("r_amount"),
-      payer: v("r_payer"),
-      method: $("r_method").value || ""
-    };
-  }
-
-  const payload = {
-    action: "submit",
-    type,
-    seiriNo,
-    label: "稟議行為",
-    title: v("g_title"),
-    content: v("g_content"),
-    attachment: null
+  let payload = {
+    action:"submit",
+    type:type,
+    seiriNo:seiriNo,
+    label:$("type").selectedOptions[0].text,
+    attachments:[]
   };
 
-  const file = $("g_file")?.files?.[0] || null;
-  if(file){
-    payload.attachment = {
-      fileName: file.name,
-      mimeType: file.type || "application/octet-stream",
-      dataUrl: await readFileAsDataURL(file)
-    };
+  if(type==="shishutsu"){
+    payload.title = v("s_title");
+    payload.content = v("s_content");
+    payload.kou = v("s_kou");
+    payload.moku = v("s_moku");
+    payload.setsu = v("s_setsu");
+    payload.amount = v("s_amount");
+    payload.payee = v("s_payee");
+    payload.method = $("s_method").value;
+  }
+
+  if(type==="shuunyuu"){
+    payload.title = v("r_title");
+    payload.content = v("r_content");
+    payload.kou = v("r_kou");
+    payload.moku = v("r_moku");
+    payload.setsu = v("r_setsu");
+    payload.amount = v("r_amount");
+    payload.payer = v("r_payer");
+    payload.method = $("r_method").value;
+  }
+
+  if(type==="ringi"){
+    payload.title = v("g_title");
+    payload.content = v("g_content");
+  }
+
+  // 添付PDF
+  const files = $("files").files;
+
+  if(files.length > 5){
+    throw new Error("PDFは5件までです");
+  }
+
+  for(let file of files){
+
+    if(file.type !== "application/pdf"){
+      throw new Error("PDFのみ添付できます");
+    }
+
+    const dataUrl = await readFileAsDataURL(file);
+
+    payload.attachments.push({
+      fileName:file.name,
+      mimeType:file.type,
+      dataUrl:dataUrl
+    });
+
   }
 
   return payload;
