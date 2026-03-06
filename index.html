@@ -27,12 +27,24 @@
   <hr>
 
   <!-- 区分 -->
-  <label>区分</label>
-  <select id="type">
-    <option value="shishutsu">支出負担行為</option>
-    <option value="shuunyuu">収入行為</option>
-    <option value="ringi">稟議行為</option>
-  </select>
+  <div class="row">
+  <div>
+    <label>区分</label>
+    <select id="type" required>
+      <option value="">選択してください</option>
+      <option value="shishutsu">支出負担行為</option>
+      <option value="shuunyuu">収入行為</option>
+      <option value="ringi">稟議行為</option>
+    </select>
+  </div>
+
+  <div>
+    <label>整理番号</label>
+    <input type="text" id="seiriNo" required placeholder="例：R6-001">
+  </div>
+</div>
+
+  
 
   <!-- 支出負担行為 -->
   <section id="form_shishutsu">
