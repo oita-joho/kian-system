@@ -2,8 +2,8 @@
 // approve.js
 // ================================
 const GAS_URL = "https://script.google.com/macros/s/AKfycbzbZsJ-VBpqwUkAkz73x9mUALE0CyBweSCE14uGw1bgCRqb8c6y08asj81ABJzYONKP4w/exec";
-
 function $(id){ return document.getElementById(id); }
+
 function esc(s){
   return String(s ?? "")
     .replace(/&/g,"&amp;")
@@ -11,184 +11,372 @@ function esc(s){
     .replace(/>/g,"&gt;")
     .replace(/"/g,"&quot;");
 }
-function setMsg(msg){ $("msg").textContent = msg || ""; }
+
+function setMsg(msg){
+  $("msg").textContent = msg || "";
+}
+
+// ================================
+// API
+// ================================
 
 async function api_(payload){
-  const res = await fetch(GAS_URL, {
-    method: "POST",
-    headers: { "Content-Type":"text/plain;charset=utf-8" },
-    body: JSON.stringify(payload)
+
+  const res = await fetch(GAS_URL,{
+    method:"POST",
+    headers:{
+      "Content-Type":"text/plain;charset=utf-8"
+    },
+    body:JSON.stringify(payload)
   });
+
   const text = await res.text();
+
   try{
     return JSON.parse(text);
   }catch{
-    throw new Error("JSONではない応答: " + text);
+    throw new Error("JSONではない応答: "+text);
   }
 }
 
-function makeAttachmentHtml_(urls, previews){
-  if(!Array.isArray(urls) || urls.length === 0) return "";
+// ================================
+// 添付HTML
+// ================================
 
-  let html = "";
-  urls.forEach((url, i) => {
-    const preview = Array.isArray(previews) && previews[i] ? previews[i] : "";
-    html += `
-      <div class="attachItem">
-        <div class="attachTitle">添付PDF ${i + 1}</div>
-        <div class="meta">
-          <span><a href="${esc(url)}" target="_blank" rel="noopener noreferrer">PDFを別窓で開く</a></span>
-        </div>
-        ${
-          preview
-            ? `<iframe class="pdfFrame" src="${esc(preview)}" loading="lazy" referrerpolicy="no-referrer"></iframe>`
-            : `<div class="meta"><span>プレビューなし</span></div>`
-        }
+function makeAttachmentHtml_(urls, previews){
+
+  if(!Array.isArray(urls) || urls.length===0){
+    return "";
+  }
+
+  let html="";
+
+  urls.forEach((url,i)=>{
+
+    const preview = Array.isArray(previews) ? previews[i] : "";
+
+    html+=`
+    <div class="attachItem">
+
+      <div class="attachTitle">
+      添付PDF ${i+1}
       </div>
+
+      <div class="meta">
+        <a href="${esc(url)}" target="_blank">
+        PDFを開く
+        </a>
+      </div>
+
+      ${
+        preview
+        ?
+        `<iframe class="pdfFrame" src="${esc(preview)}"></iframe>`
+        :
+        ``
+      }
+
+    </div>
     `;
+
   });
+
   return html;
 }
 
+// ================================
+// 承認履歴
+// ================================
+
 function makeApprovalsText_(item){
-  const lines = [];
+
+  const lines=[];
+
   if(item.approverA){
-    lines.push(`A: ${item.approverA} / ${item.approvedAtA || ""} / ${item.commentA || ""}`);
+    lines.push(
+      `A: ${item.approverA} / ${item.approvedAtA || ""} / ${item.commentA || ""}`
+    );
   }
+
   if(item.approverB){
-    lines.push(`B: ${item.approverB} / ${item.approvedAtB || ""} / ${item.commentB || ""}`);
+    lines.push(
+      `B: ${item.approverB} / ${item.approvedAtB || ""} / ${item.commentB || ""}`
+    );
   }
-  return lines.length ? lines.join("\n") : "まだ承認はありません。";
+
+  if(lines.length===0){
+    return "まだ承認はありません";
+  }
+
+  return lines.join("\n");
+
 }
+
+// ================================
+// カード作成
+// ================================
 
 function makeCard_(item){
-  const attach = makeAttachmentHtml_(item.attachmentUrls, item.attachmentPreviewUrls);
 
-  const pdfBlock = item.pdfPreviewUrl
-    ? `
-      <div class="pdfWrap">
-        <div class="attachTitle">起案書PDF</div>
-        <div class="meta">
-          <span><a href="${esc(item.pdfUrl || "")}" target="_blank" rel="noopener noreferrer">PDFを別窓で開く</a></span>
-        </div>
-        <iframe class="pdfFrame" src="${esc(item.pdfPreviewUrl)}" loading="lazy" referrerpolicy="no-referrer"></iframe>
-      </div>
+  const aDone = !!item.approverA;
+  const bDone = !!item.approverB;
+
+  const attach = makeAttachmentHtml_(
+    item.attachmentUrls,
+    item.attachmentPreviewUrls
+  );
+
+  const pdfBlock =
+    item.pdfPreviewUrl
+    ?
     `
-    : `<div class="meta"><span>起案書PDFなし</span></div>`;
+    <div class="pdfWrap">
 
-  return `
-    <div class="cardItem">
-      <div class="cardHead">
-        <div>
-          <span class="badge">${esc(item.typeLabel || "")}</span>
-          <span class="badge">整理番号: ${esc(item.seiriNo || "")}</span>
-          <div class="kianId">起案番号: ${esc(item.kianId || "")}</div>
-        </div>
-        <div class="kianId">${esc(item.createdAt || "")}</div>
+      <div class="attachTitle">
+      起案書PDF
       </div>
-
-      <div class="title">${esc(item.title || "")}</div>
-      <div class="content">${esc(item.content || "")}</div>
 
       <div class="meta">
-        ${item.kou ? `<span>項: ${esc(item.kou)}</span>` : ""}
-        ${item.moku ? `<span>目: ${esc(item.moku)}</span>` : ""}
-        ${item.setsu ? `<span>節: ${esc(item.setsu)}</span>` : ""}
-        ${item.amount ? `<span>金額: ${esc(item.amount)}</span>` : ""}
-        ${item.payee ? `<span>支払先: ${esc(item.payee)}</span>` : ""}
-        ${item.payer ? `<span>納入者: ${esc(item.payer)}</span>` : ""}
-        ${item.method ? `<span>方法: ${esc(item.method)}</span>` : ""}
+        <a href="${esc(item.pdfUrl)}" target="_blank">
+        PDFを開く
+        </a>
       </div>
 
-      ${pdfBlock}
-      ${attach}
+      <iframe
+        class="pdfFrame"
+        src="${esc(item.pdfPreviewUrl)}">
+      </iframe>
 
-      <div class="attachItem">
-        <div class="attachTitle">承認状況</div>
-        <pre class="draftList">${esc(makeApprovalsText_(item))}</pre>
-      </div>
-
-      <div class="twoApprovers">
-        <div class="approverBox">
-          <strong>承認者A</strong>
-          <label>氏名</label>
-          <input type="text" id="nameA_${esc(item.kianId)}" placeholder="承認者Aの名前">
-          <label>コメント</label>
-          <textarea id="commentA_${esc(item.kianId)}" rows="3"></textarea>
-          <button class="approveBtn" onclick="approveOne('${esc(item.kianId)}','A')">Aとして承認</button>
-        </div>
-
-        <div class="approverBox">
-          <strong>承認者B</strong>
-          <label>氏名</label>
-          <input type="text" id="nameB_${esc(item.kianId)}" placeholder="承認者Bの名前">
-          <label>コメント</label>
-          <textarea id="commentB_${esc(item.kianId)}" rows="3"></textarea>
-          <button class="approveBtn" onclick="approveOne('${esc(item.kianId)}','B')">Bとして承認</button>
-        </div>
-      </div>
     </div>
-  `;
+    `
+    :
+    "";
+
+  return `
+
+<div class="cardItem">
+
+  <div class="cardHead">
+
+    <div>
+
+      <span class="badge">
+      ${esc(item.typeLabel)}
+      </span>
+
+      <span class="badge">
+      整理番号: ${esc(item.seiriNo)}
+      </span>
+
+      <div class="kianId">
+      起案番号: ${esc(item.kianId)}
+      </div>
+
+    </div>
+
+    <div class="kianId">
+    ${esc(item.createdAt)}
+    </div>
+
+  </div>
+
+  <div class="title">
+  ${esc(item.title)}
+  </div>
+
+  <div class="content">
+  ${esc(item.content)}
+  </div>
+
+  ${pdfBlock}
+
+  ${attach}
+
+  <div class="attachItem">
+
+    <div class="attachTitle">
+    承認履歴
+    </div>
+
+    <pre class="draftList">
+${esc(makeApprovalsText_(item))}
+    </pre>
+
+  </div>
+
+  <div class="twoApprovers">
+
+    <!-- A -->
+
+    <div class="approverBox ${aDone ? "doneBox":""}">
+
+      <strong>
+      承認者A
+      </strong>
+
+      <label>氏名</label>
+
+      <input
+        id="nameA_${esc(item.kianId)}"
+        type="text"
+        ${aDone ? "disabled":""}
+      >
+
+      <label>コメント</label>
+
+      <textarea
+        id="commentA_${esc(item.kianId)}"
+        rows="3"
+        ${aDone ? "disabled":""}
+      ></textarea>
+
+      <button
+        class="approveBtn ${aDone ? "doneBtn":""}"
+        ${aDone ? "disabled":""}
+        onclick="${
+          aDone ? "" :
+          `approveOne('${esc(item.kianId)}','A')`
+        }"
+      >
+      ${aDone ? "A承認済":"Aとして承認"}
+      </button>
+
+    </div>
+
+
+    <!-- B -->
+
+    <div class="approverBox ${bDone ? "doneBox":""}">
+
+      <strong>
+      承認者B
+      </strong>
+
+      <label>氏名</label>
+
+      <input
+        id="nameB_${esc(item.kianId)}"
+        type="text"
+        ${bDone ? "disabled":""}
+      >
+
+      <label>コメント</label>
+
+      <textarea
+        id="commentB_${esc(item.kianId)}"
+        rows="3"
+        ${bDone ? "disabled":""}
+      ></textarea>
+
+      <button
+        class="approveBtn ${bDone ? "doneBtn":""}"
+        ${bDone ? "disabled":""}
+        onclick="${
+          bDone ? "" :
+          `approveOne('${esc(item.kianId)}','B')`
+        }"
+      >
+      ${bDone ? "B承認済":"Bとして承認"}
+      </button>
+
+    </div>
+
+  </div>
+
+</div>
+
+`;
+
 }
 
+// ================================
+// 一覧取得
+// ================================
+
 async function loadList(){
-  setMsg("一覧を読み込み中…");
+
+  setMsg("読み込み中...");
+
   try{
+
     const data = await api_({
-      action: "list",
-      status: "pending",
-      limit: 50
+      action:"list",
+      status:"pending"
     });
 
     if(!data.ok){
-      setMsg("失敗: " + (data.message || "unknown"));
+      setMsg("失敗: "+data.message);
       return;
     }
 
-    const box = $("cards");
-    if(!data.items || data.items.length === 0){
-      box.innerHTML = `<div class="cardItem">承認待ちの文書はありません。</div>`;
+    const box=$("cards");
+
+    if(!data.items || data.items.length===0){
+      box.innerHTML="承認待ちはありません";
       setMsg("");
       return;
     }
 
-    box.innerHTML = data.items.map(makeCard_).join("");
+    box.innerHTML = data.items
+      .map(makeCard_)
+      .join("");
+
     setMsg("");
+
   }catch(err){
-    setMsg("読み込みエラー: " + err);
+
+    setMsg("エラー: "+err);
+
   }
+
 }
 
-async function approveOne(kianId, side){
-  const approverName = ($(`name${side}_${kianId}`)?.value || "").trim();
-  const comment = ($(`comment${side}_${kianId}`)?.value || "").trim();
+// ================================
+// 承認
+// ================================
 
-  if(!approverName){
-    alert(`承認者${side}の名前を入力してください。`);
+async function approveOne(kianId, side){
+
+  const name = $(`name${side}_${kianId}`).value.trim();
+  const comment = $(`comment${side}_${kianId}`).value.trim();
+
+  if(!name){
+    alert("名前を入力してください");
     return;
   }
 
-  setMsg(`承認${side}を送信中…`);
+  setMsg("承認送信中...");
 
   try{
+
     const data = await api_({
-      action: "approve",
+      action:"approve",
       kianId,
       side,
-      approverName,
+      approverName:name,
       comment
     });
 
     if(!data.ok){
-      setMsg("失敗: " + (data.message || "unknown"));
+      setMsg("失敗: "+data.message);
       return;
     }
 
-    setMsg(`承認しました。状態: ${data.status}`);
-    await loadList();
+    setMsg("承認しました");
+
+    loadList();
+
   }catch(err){
-    setMsg("承認エラー: " + err);
+
+    setMsg("エラー: "+err);
+
   }
+
 }
 
-window.addEventListener("load", loadList);
+// ================================
+
+window.addEventListener(
+  "load",
+  loadList
+);
