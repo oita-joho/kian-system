@@ -1,68 +1,18 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="ja">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>承認ページ</title>
-  <link rel="stylesheet" href="./style.css" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>承認画面</title>
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
-
-<div class="container">
-  <h1>承認ページ</h1>
-
-<div class="approveTop">
-  <div class="approveInfo">
-    <div class="small">日付（自動）</div>
-    <div id="today" class="today"></div>
-    <p class="help">※承認は2人分たまったら「承認済」になります（順番なし）</p>
+  <div class="container">
+    <h1>承認画面</h1>
+    <div id="msg" class="status"></div>
+    <div id="cards" class="cards"></div>
   </div>
 
-  <div class="twoApprovers">
-    <div class="approverBox" id="boxA">
-      <div class="approverHead">
-        <div class="badge">承認者A</div>
-        <label class="radio">
-          <input type="radio" name="mySide" value="A" checked>
-          自分はこちら
-        </label>
-      </div>
-      <label>承認者名（必須）</label>
-      <input id="approverNameA" type="text" placeholder="例：会長">
-      <label>コメント（任意）</label>
-      <input id="commentA" type="text" placeholder="例：確認しました">
-    </div>
-
-    <div class="approverBox" id="boxB">
-      <div class="approverHead">
-        <div class="badge">承認者B</div>
-        <label class="radio">
-          <input type="radio" name="mySide" value="B">
-          自分はこちら
-        </label>
-      </div>
-      <label>承認者名（必須）</label>
-      <input id="approverNameB" type="text" placeholder="例：理事長">
-      <label>コメント（任意）</label>
-      <input id="commentB" type="text" placeholder="例：OKです">
-    </div>
-  </div>
-
-  <div class="row">
-    <button id="reloadBtn" type="button" class="secondary">最新に更新</button>
-  </div>
-</div>
-
-  <hr>
-
-  <h2 class="h2">未承認（要承認）一覧</h2>
-  <p class="help">※承認は2人分たまったら「承認済」になります（順番なし）</p>
-
-  <div id="list" class="cards"></div>
-
-  <p id="status" class="status"></p>
-</div>
-
-<script src="./approve.js"></script>
+  <script src="approve.js"></script>
 </body>
 </html>
