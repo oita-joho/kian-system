@@ -10,18 +10,22 @@
 
 <div class="container">
   <h1>文書起案システム</h1>
-
-  <div class="draft-controls">
+<div class="draft-row">
 
   <input id="draftNo" type="text" placeholder="例：1">
 
-  <div class="draft-buttons">
-    <button id="saveDraftBtn" type="button">下書き保存</button>
-    <button id="loadDraftBtn" type="button">下書き復元</button>
-    <button id="deleteDraftBtn" type="button">下書き削除</button>
-    <button id="listDraftBtn" type="button">下書き一覧</button>
-  </div>
+  <button id="saveDraftBtn" type="button">下書き保存</button>
 
+  <button id="loadDraftBtn" type="button">下書き復元</button>
+
+  <button id="deleteDraftBtn" type="button">下書き削除</button>
+
+  <button id="listDraftBtn" type="button">下書き一覧</button>
+
+</div>
+
+<div class="draft-note">
+「下書き一覧」を押すと表示されます。
 </div>
 
 <pre id="draftList"></pre>
