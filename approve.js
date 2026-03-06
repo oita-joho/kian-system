@@ -176,6 +176,7 @@ function makeCard_(item){
       <input
         id="nameA_${esc(item.kianId)}"
         type="text"
+        placeholder="会長名を入力"
         ${aDone ? "disabled" : ""}
       >
 
@@ -202,6 +203,7 @@ function makeCard_(item){
       <input
         id="nameB_${esc(item.kianId)}"
         type="text"
+        placeholder="理事長名を入力"
         ${bDone ? "disabled" : ""}
       >
 
