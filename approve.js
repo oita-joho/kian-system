@@ -1,7 +1,7 @@
 // ================================
 // approve.js
 // ================================
-const GAS_URL = "https://script.google.com/macros/s/AKfycbzaSWN6j9G8KAPJQREm0yDzkzRC76U52YvU7KGjSlE-1KDsISObd5TajXrv2hNP3hs_aA/exec";
+const GAS_URL = "YOUR_GAS_WEBAPP_URL";
 
 function $(id){ return document.getElementById(id); }
 function esc(s){
@@ -27,21 +27,54 @@ async function api_(payload){
   }
 }
 
+function makeAttachmentHtml_(urls, previews){
+  if(!Array.isArray(urls) || urls.length === 0) return "";
+
+  let html = "";
+  urls.forEach((url, i) => {
+    const preview = Array.isArray(previews) && previews[i] ? previews[i] : "";
+    html += `
+      <div class="attachItem">
+        <div class="attachTitle">添付PDF ${i + 1}</div>
+        <div class="meta">
+          <span><a href="${esc(url)}" target="_blank" rel="noopener noreferrer">PDFを別窓で開く</a></span>
+        </div>
+        ${
+          preview
+            ? `<iframe class="pdfFrame" src="${esc(preview)}" loading="lazy" referrerpolicy="no-referrer"></iframe>`
+            : `<div class="meta"><span>プレビューなし</span></div>`
+        }
+      </div>
+    `;
+  });
+  return html;
+}
+
+function makeApprovalsText_(item){
+  const lines = [];
+  if(item.approverA){
+    lines.push(`A: ${item.approverA} / ${item.approvedAtA || ""} / ${item.commentA || ""}`);
+  }
+  if(item.approverB){
+    lines.push(`B: ${item.approverB} / ${item.approvedAtB || ""} / ${item.commentB || ""}`);
+  }
+  return lines.length ? lines.join("\n") : "まだ承認はありません。";
+}
+
 function makeCard_(item){
-  const attach = item.attachmentUrl
-    ? `<a href="${esc(item.attachmentUrl)}" target="_blank" rel="noopener noreferrer">添付を開く</a>`
-    : "添付なし";
+  const attach = makeAttachmentHtml_(item.attachmentUrls, item.attachmentPreviewUrls);
 
   const pdfBlock = item.pdfPreviewUrl
     ? `
       <div class="pdfWrap">
+        <div class="attachTitle">起案書PDF</div>
         <div class="meta">
-          <span><a href="${esc(item.pdfUrl || item.pdfPreviewUrl)}" target="_blank" rel="noopener noreferrer">PDFを別窓で開く</a></span>
+          <span><a href="${esc(item.pdfUrl || "")}" target="_blank" rel="noopener noreferrer">PDFを別窓で開く</a></span>
         </div>
-        <iframe class="pdfFrame" src="${esc(item.pdfPreviewUrl)}"></iframe>
+        <iframe class="pdfFrame" src="${esc(item.pdfPreviewUrl)}" loading="lazy" referrerpolicy="no-referrer"></iframe>
       </div>
     `
-    : `<div class="meta"><span>PDFなし</span></div>`;
+    : `<div class="meta"><span>起案書PDFなし</span></div>`;
 
   return `
     <div class="cardItem">
@@ -65,10 +98,15 @@ function makeCard_(item){
         ${item.payee ? `<span>支払先: ${esc(item.payee)}</span>` : ""}
         ${item.payer ? `<span>納入者: ${esc(item.payer)}</span>` : ""}
         ${item.method ? `<span>方法: ${esc(item.method)}</span>` : ""}
-        <span>${attach}</span>
       </div>
 
       ${pdfBlock}
+      ${attach}
+
+      <div class="attachItem">
+        <div class="attachTitle">承認状況</div>
+        <pre class="draftList">${esc(makeApprovalsText_(item))}</pre>
+      </div>
 
       <div class="twoApprovers">
         <div class="approverBox">
