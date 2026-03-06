@@ -304,3 +304,19 @@ select:required:invalid{
 .draft-buttons button{
   width:100%;
 }
+.draft-row{
+  display:grid;
+  grid-template-columns: 120px 1fr 1fr 1fr 1fr;
+  gap:10px;
+  margin-bottom:10px;
+}
+
+.draft-row input{
+  width:100%;
+  height:42px;
+  box-sizing:border-box;
+}
+
+.draft-row button{
+  width:100%;
+}
