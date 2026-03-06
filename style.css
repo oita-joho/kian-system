@@ -284,3 +284,13 @@ select:required:invalid{
 .row2 button{
   width:100%;
 }
+.row{
+  display:flex;
+  gap:20px;
+  align-items:flex-end;
+}
+
+.row div{
+  display:flex;
+  flex-direction:column;
+}
