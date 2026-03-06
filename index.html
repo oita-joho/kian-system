@@ -7,168 +7,148 @@
   <link rel="stylesheet" href="./style.css" />
 </head>
 <body>
+  <div class="container">
+    <h1>文書起案システム</h1>
 
-<div class="container">
-  <h1>文書起案システム</h1>
-<div class="draft-row">
-
-  <input id="draftNo" type="text" placeholder="例：1">
-
-  <button id="saveDraftBtn" type="button">下書き保存</button>
-
-  <button id="loadDraftBtn" type="button">下書き復元</button>
-
-  <button id="deleteDraftBtn" type="button">下書き削除</button>
-
-  <button id="listDraftBtn" type="button">下書き一覧</button>
-
-</div>
-
-<div class="draft-note">
-「下書き一覧」を押すと表示されます。
-</div>
-
-<pre id="draftList"></pre>
-
-  <hr>
-
-  <!-- 区分 -->
-  <div class="row">
-  <div>
-    <label>区分</label>
-    <select id="type" required>
-      <option value="">選択してください</option>
-      <option value="shishutsu">支出負担行為</option>
-      <option value="shuunyuu">収入行為</option>
-      <option value="ringi">稟議行為</option>
-    </select>
-  </div>
-
-  <div>
-    <label>整理番号</label>
-    <input type="text" id="seiriNo" required placeholder="例：R6-001">
-  </div>
-</div>
-
-  
-
-  <!-- 支出負担行為 -->
-  <section id="form_shishutsu">
-
-    <!-- 項目節：区分の下、件名の上 -->
-    <div class="triple">
-      <div class="field">
-        <label>項</label>
-        <input id="s_kou" type="text">
+    <!-- 下書き -->
+    <div class="draft-area">
+      <div class="draft-row">
+        <input id="draftNo" type="text" placeholder="例：1">
+        <button id="saveDraftBtn" type="button">下書き保存</button>
+        <button id="loadDraftBtn" type="button">下書き復元</button>
+        <button id="deleteDraftBtn" type="button">下書き削除</button>
+        <button id="listDraftBtn" class="listBtn" type="button">下書き一覧</button>
       </div>
-      <div class="field">
-        <label>目</label>
-        <input id="s_moku" type="text">
-      </div>
-      <div class="field">
-        <label>節</label>
-        <input id="s_setsu" type="text">
-      </div>
+
+      <div class="draft-note">「下書き一覧」を押すと表示されます。</div>
+      <pre id="draftList" class="draftList"></pre>
     </div>
 
-    <label>件名 ★</label>
-    <input id="s_title" type="text" required>
+    <hr>
 
-    <label>内容 ★</label>
-    <textarea id="s_content" rows="8" required></textarea>
-
-    <div class="triple">
+    <!-- 区分＋整理番号 -->
+    <div class="type-seiri-row">
       <div class="field">
-        <label>支出金額 ★</label>
-        <input id="s_amount" type="number" inputmode="numeric" min="0" step="1" required>
-      </div>
-      <div class="field">
-        <label>支払先 ★</label>
-        <input id="s_payee" type="text" required>
-      </div>
-      <div class="field">
-        <label>支払方法</label>
-        <select id="s_method">
-          <option value="口座振込">口座振込</option>
-          <option value="現金">現金</option>
-          <option value="請求書払い">請求書払い</option>
-          <option value="その他">その他</option>
+        <label for="type">区分</label>
+        <select id="type" required>
+          <option value="">選択してください</option>
+          <option value="shishutsu">支出負担行為</option>
+          <option value="shuunyuu">収入行為</option>
+          <option value="ringi">稟議行為</option>
         </select>
       </div>
-    </div>
 
-  </section>
-
-  <!-- 収入行為 -->
-  <section id="form_shuunyuu" style="display:none;">
-
-    <!-- 項目節：区分の下、件名の上 -->
-    <div class="triple">
       <div class="field">
-        <label>項</label>
-        <input id="r_kou" type="text">
-      </div>
-      <div class="field">
-        <label>目</label>
-        <input id="r_moku" type="text">
-      </div>
-      <div class="field">
-        <label>節</label>
-        <input id="r_setsu" type="text">
+        <label for="seiriNo">整理番号</label>
+        <input id="seiriNo" type="text" placeholder="例：R6-001" required>
       </div>
     </div>
 
-    <label>件名 ★</label>
-    <input id="r_title" type="text" required>
-
-    <label>内容 ★</label>
-    <textarea id="r_content" rows="8" required></textarea>
-
-    <!-- ★横1列：収入金額・納入者・納入方法（プルダウン） -->
-    <div class="triple">
-      <div class="field">
-        <label>収入金額 ★</label>
-        <input id="r_amount" type="number" inputmode="numeric" min="0" step="1" required>
+    <!-- ここから下に各フォーム -->
+    <!-- 支出 -->
+    <div id="form_shishutsu" style="display:none;">
+      <div class="triple">
+        <div class="field">
+          <label for="s_kou">項</label>
+          <input id="s_kou" type="text">
+        </div>
+        <div class="field">
+          <label for="s_moku">目</label>
+          <input id="s_moku" type="text">
+        </div>
+        <div class="field">
+          <label for="s_setsu">節</label>
+          <input id="s_setsu" type="text">
+        </div>
       </div>
-      <div class="field">
-        <label>納入者 ★</label>
-        <input id="r_payer" type="text" required>
-      </div>
-      <div class="field">
-        <label>納入方法</label>
-        <select id="r_method">
-          <option value="口座振込">口座振込</option>
-          <option value="現金">現金</option>
-          <option value="その他">その他</option>
-        </select>
+
+      <label for="s_title">件名</label>
+      <input id="s_title" type="text">
+
+      <label for="s_content">内容</label>
+      <textarea id="s_content" rows="4"></textarea>
+
+      <div class="triple">
+        <div class="field">
+          <label for="s_amount">支出金額</label>
+          <input id="s_amount" type="number">
+        </div>
+        <div class="field">
+          <label for="s_payee">支払先</label>
+          <input id="s_payee" type="text">
+        </div>
+        <div class="field">
+          <label for="s_method">支払方法</label>
+          <select id="s_method">
+            <option value="口座振込">口座振込</option>
+            <option value="現金">現金</option>
+          </select>
+        </div>
       </div>
     </div>
 
-  </section>
+    <!-- 収入 -->
+    <div id="form_shuunyuu" style="display:none;">
+      <div class="triple">
+        <div class="field">
+          <label for="r_kou">項</label>
+          <input id="r_kou" type="text">
+        </div>
+        <div class="field">
+          <label for="r_moku">目</label>
+          <input id="r_moku" type="text">
+        </div>
+        <div class="field">
+          <label for="r_setsu">節</label>
+          <input id="r_setsu" type="text">
+        </div>
+      </div>
 
-  <!-- 稟議行為 -->
-  <section id="form_ringi" style="display:none;">
+      <label for="r_title">件名</label>
+      <input id="r_title" type="text">
 
-    <label>件名 ★</label>
-    <input id="g_title" type="text" required>
+      <label for="r_content">内容</label>
+      <textarea id="r_content" rows="4"></textarea>
 
-    <label>内容 ★</label>
-    <textarea id="g_content" rows="10" required></textarea>
+      <div class="triple">
+        <div class="field">
+          <label for="r_amount">収入金額</label>
+          <input id="r_amount" type="number">
+        </div>
+        <div class="field">
+          <label for="r_payer">納入者</label>
+          <input id="r_payer" type="text">
+        </div>
+        <div class="field">
+          <label for="r_method">受取方法</label>
+          <select id="r_method">
+            <option value="口座振込">口座振込</option>
+            <option value="現金">現金</option>
+          </select>
+        </div>
+      </div>
+    </div>
 
-    <label>添付</label>
-    <input id="g_file" type="file">
-    <p class="help">※添付は稟議のみ（任意・1ファイル）</p>
+    <!-- 稟議 -->
+    <div id="form_ringi" style="display:none;">
+      <label for="g_title">件名</label>
+      <input id="g_title" type="text">
 
-  </section>
+      <label for="g_content">内容</label>
+      <textarea id="g_content" rows="5"></textarea>
 
-  <div class="row">
-    <button id="sendBtn" type="button">送信</button>
-    <button id="clearBtn" type="button" class="secondary">クリア</button>
+      <label for="g_file">添付ファイル</label>
+      <input id="g_file" type="file">
+    </div>
+
+    <div class="action-row">
+      <button id="sendBtn" type="button">送信</button>
+      <button id="clearBtn" type="button" class="secondary">クリア</button>
+    </div>
+
+    <div id="status" class="status"></div>
   </div>
 
-  <p class="status" id="status"></p>
-</div>
-
-<script src="./script.js"></script>
+  <script src="script.js"></script>
 </body>
 </html>
