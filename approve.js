@@ -1,7 +1,7 @@
 // ================================
 // approve.js
 // ================================
-const GAS_URL = "YOUR_GAS_WEBAPP_URL";
+const GAS_URL = "https://script.google.com/macros/s/AKfycbzbZsJ-VBpqwUkAkz73x9mUALE0CyBweSCE14uGw1bgCRqb8c6y08asj81ABJzYONKP4w/exec";
 
 function $(id){ return document.getElementById(id); }
 function esc(s){
