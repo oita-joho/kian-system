@@ -2,6 +2,8 @@
 // approve.js
 // ================================
 const GAS_URL = "https://script.google.com/macros/s/AKfycbzbZsJ-VBpqwUkAkz73x9mUALE0CyBweSCE14uGw1bgCRqb8c6y08asj81ABJzYONKP4w/exec";
+
+
 function $(id){ return document.getElementById(id); }
 
 function esc(s){
@@ -21,7 +23,6 @@ function setMsg(msg){
 // ================================
 
 async function api_(payload){
-
   const res = await fetch(GAS_URL,{
     method:"POST",
     headers:{
@@ -35,53 +36,8 @@ async function api_(payload){
   try{
     return JSON.parse(text);
   }catch{
-    throw new Error("JSONではない応答: "+text);
+    throw new Error("JSONではない応答: " + text);
   }
-}
-
-// ================================
-// 添付HTML
-// ================================
-
-function makeAttachmentHtml_(urls, previews){
-
-  if(!Array.isArray(urls) || urls.length===0){
-    return "";
-  }
-
-  let html="";
-
-  urls.forEach((url,i)=>{
-
-    const preview = Array.isArray(previews) ? previews[i] : "";
-
-    html+=`
-    <div class="attachItem">
-
-      <div class="attachTitle">
-      添付PDF ${i+1}
-      </div>
-
-      <div class="meta">
-        <a href="${esc(url)}" target="_blank">
-        PDFを開く
-        </a>
-      </div>
-
-      ${
-        preview
-        ?
-        `<iframe class="pdfFrame" src="${esc(preview)}"></iframe>`
-        :
-        ``
-      }
-
-    </div>
-    `;
-
-  });
-
-  return html;
 }
 
 // ================================
@@ -89,27 +45,75 @@ function makeAttachmentHtml_(urls, previews){
 // ================================
 
 function makeApprovalsText_(item){
-
-  const lines=[];
+  const lines = [];
 
   if(item.approverA){
-    lines.push(
-      `A: ${item.approverA} / ${item.approvedAtA || ""} / ${item.commentA || ""}`
-    );
+    lines.push(`A: ${item.approverA} / ${item.approvedAtA || ""} / ${item.commentA || ""}`);
   }
 
   if(item.approverB){
-    lines.push(
-      `B: ${item.approverB} / ${item.approvedAtB || ""} / ${item.commentB || ""}`
-    );
+    lines.push(`B: ${item.approverB} / ${item.approvedAtB || ""} / ${item.commentB || ""}`);
   }
 
-  if(lines.length===0){
+  if(lines.length === 0){
     return "まだ承認はありません";
   }
 
   return lines.join("\n");
+}
 
+// ================================
+// PDFグリッド作成
+// ================================
+
+function makePdfGrid_(item){
+  let html = `<div class="pdfGrid">`;
+
+  // 起案書PDF
+  if(item.pdfPreviewUrl){
+    html += `
+      <div class="pdfBox">
+        <div class="pdfTitle">起案書PDF</div>
+        <div class="meta">
+          <a href="${esc(item.pdfUrl || "")}" target="_blank" rel="noopener noreferrer">
+            PDFを開く
+          </a>
+        </div>
+        <iframe
+          class="pdfFrame"
+          src="${esc(item.pdfPreviewUrl)}"
+          loading="lazy"
+          referrerpolicy="no-referrer">
+        </iframe>
+      </div>
+    `;
+  }
+
+  // 添付PDF
+  if(Array.isArray(item.attachmentPreviewUrls) && item.attachmentPreviewUrls.length > 0){
+    item.attachmentPreviewUrls.forEach((previewUrl, i) => {
+      const fileUrl = Array.isArray(item.attachmentUrls) ? (item.attachmentUrls[i] || "") : "";
+      html += `
+        <div class="pdfBox">
+          <div class="pdfTitle">添付PDF ${i + 1}</div>
+          <div class="meta">
+            <a href="${esc(fileUrl)}" target="_blank" rel="noopener noreferrer">
+              PDFを開く
+            </a>
+          </div>
+          <iframe
+            class="pdfFrame"
+            src="${esc(previewUrl)}"
+            loading="lazy"
+            referrerpolicy="no-referrer">
+          </iframe>
+        </div>
+      `;
+    });
+  }
+
+  html += `</div>`;
+  return html;
 }
 
 // ================================
@@ -121,172 +125,106 @@ function makeCard_(item){
   const aDone = !!item.approverA;
   const bDone = !!item.approverB;
 
-  const attach = makeAttachmentHtml_(
-    item.attachmentUrls,
-    item.attachmentPreviewUrls
-  );
-
-  const pdfBlock =
-    item.pdfPreviewUrl
-    ?
-    `
-    <div class="pdfWrap">
-
-      <div class="attachTitle">
-      起案書PDF
-      </div>
-
-      <div class="meta">
-        <a href="${esc(item.pdfUrl)}" target="_blank">
-        PDFを開く
-        </a>
-      </div>
-
-      <iframe
-        class="pdfFrame"
-        src="${esc(item.pdfPreviewUrl)}">
-      </iframe>
-
-    </div>
-    `
-    :
-    "";
+  const pdfGrid = makePdfGrid_(item);
 
   return `
-
 <div class="cardItem">
 
   <div class="cardHead">
-
     <div>
-
-      <span class="badge">
-      ${esc(item.typeLabel)}
-      </span>
-
-      <span class="badge">
-      整理番号: ${esc(item.seiriNo)}
-      </span>
-
-      <div class="kianId">
-      起案番号: ${esc(item.kianId)}
-      </div>
-
+      <span class="badge">${esc(item.typeLabel || "")}</span>
+      <span class="badge">整理番号: ${esc(item.seiriNo || "")}</span>
+      <div class="kianId">起案番号: ${esc(item.kianId || "")}</div>
     </div>
 
     <div class="kianId">
-    ${esc(item.createdAt)}
+      ${esc(item.createdAt || "")}
     </div>
-
   </div>
 
   <div class="title">
-  ${esc(item.title)}
+    ${esc(item.title || "")}
   </div>
 
   <div class="content">
-  ${esc(item.content)}
+    ${esc(item.content || "")}
   </div>
 
-  ${pdfBlock}
+  <div class="meta">
+    ${item.kou ? `<span>項: ${esc(item.kou)}</span>` : ""}
+    ${item.moku ? `<span>目: ${esc(item.moku)}</span>` : ""}
+    ${item.setsu ? `<span>節: ${esc(item.setsu)}</span>` : ""}
+    ${item.amount ? `<span>金額: ${esc(item.amount)}</span>` : ""}
+    ${item.payee ? `<span>支払先: ${esc(item.payee)}</span>` : ""}
+    ${item.payer ? `<span>納入者: ${esc(item.payer)}</span>` : ""}
+    ${item.method ? `<span>方法: ${esc(item.method)}</span>` : ""}
+  </div>
 
-  ${attach}
+  ${pdfGrid}
 
   <div class="attachItem">
-
-    <div class="attachTitle">
-    承認履歴
-    </div>
-
-    <pre class="draftList">
-${esc(makeApprovalsText_(item))}
-    </pre>
-
+    <div class="attachTitle">承認履歴</div>
+    <pre class="draftList">${esc(makeApprovalsText_(item))}</pre>
   </div>
 
   <div class="twoApprovers">
 
-    <!-- A -->
-
-    <div class="approverBox ${aDone ? "doneBox":""}">
-
-      <strong>
-      承認者A
-      </strong>
+    <div class="approverBox ${aDone ? "doneBox" : ""}">
+      <strong>承認者A</strong>
 
       <label>氏名</label>
-
       <input
         id="nameA_${esc(item.kianId)}"
         type="text"
-        ${aDone ? "disabled":""}
+        ${aDone ? "disabled" : ""}
       >
 
       <label>コメント</label>
-
       <textarea
         id="commentA_${esc(item.kianId)}"
         rows="3"
-        ${aDone ? "disabled":""}
+        ${aDone ? "disabled" : ""}
       ></textarea>
 
       <button
-        class="approveBtn ${aDone ? "doneBtn":""}"
-        ${aDone ? "disabled":""}
-        onclick="${
-          aDone ? "" :
-          `approveOne('${esc(item.kianId)}','A')`
-        }"
+        class="approveBtn ${aDone ? "doneBtn" : ""}"
+        ${aDone ? "disabled" : ""}
+        onclick="${aDone ? "" : `approveOne('${esc(item.kianId)}','A')`}"
       >
-      ${aDone ? "A承認済":"Aとして承認"}
+        ${aDone ? "A承認済" : "Aとして承認"}
       </button>
-
     </div>
 
-
-    <!-- B -->
-
-    <div class="approverBox ${bDone ? "doneBox":""}">
-
-      <strong>
-      承認者B
-      </strong>
+    <div class="approverBox ${bDone ? "doneBox" : ""}">
+      <strong>承認者B</strong>
 
       <label>氏名</label>
-
       <input
         id="nameB_${esc(item.kianId)}"
         type="text"
-        ${bDone ? "disabled":""}
+        ${bDone ? "disabled" : ""}
       >
 
       <label>コメント</label>
-
       <textarea
         id="commentB_${esc(item.kianId)}"
         rows="3"
-        ${bDone ? "disabled":""}
+        ${bDone ? "disabled" : ""}
       ></textarea>
 
       <button
-        class="approveBtn ${bDone ? "doneBtn":""}"
-        ${bDone ? "disabled":""}
-        onclick="${
-          bDone ? "" :
-          `approveOne('${esc(item.kianId)}','B')`
-        }"
+        class="approveBtn ${bDone ? "doneBtn" : ""}"
+        ${bDone ? "disabled" : ""}
+        onclick="${bDone ? "" : `approveOne('${esc(item.kianId)}','B')`}"
       >
-      ${bDone ? "B承認済":"Bとして承認"}
+        ${bDone ? "B承認済" : "Bとして承認"}
       </button>
-
     </div>
 
   </div>
 
 </div>
-
 `;
-
 }
 
 // ================================
@@ -294,41 +232,34 @@ ${esc(makeApprovalsText_(item))}
 // ================================
 
 async function loadList(){
-
   setMsg("読み込み中...");
 
   try{
-
     const data = await api_({
       action:"list",
-      status:"pending"
+      status:"pending",
+      limit:50
     });
 
     if(!data.ok){
-      setMsg("失敗: "+data.message);
+      setMsg("失敗: " + (data.message || "unknown"));
       return;
     }
 
-    const box=$("cards");
+    const box = $("cards");
 
-    if(!data.items || data.items.length===0){
-      box.innerHTML="承認待ちはありません";
+    if(!data.items || data.items.length === 0){
+      box.innerHTML = "承認待ちはありません";
       setMsg("");
       return;
     }
 
-    box.innerHTML = data.items
-      .map(makeCard_)
-      .join("");
-
+    box.innerHTML = data.items.map(makeCard_).join("");
     setMsg("");
 
   }catch(err){
-
-    setMsg("エラー: "+err);
-
+    setMsg("エラー: " + err);
   }
-
 }
 
 // ================================
@@ -336,7 +267,6 @@ async function loadList(){
 // ================================
 
 async function approveOne(kianId, side){
-
   const name = $(`name${side}_${kianId}`).value.trim();
   const comment = $(`comment${side}_${kianId}`).value.trim();
 
@@ -348,7 +278,6 @@ async function approveOne(kianId, side){
   setMsg("承認送信中...");
 
   try{
-
     const data = await api_({
       action:"approve",
       kianId,
@@ -358,25 +287,16 @@ async function approveOne(kianId, side){
     });
 
     if(!data.ok){
-      setMsg("失敗: "+data.message);
+      setMsg("失敗: " + (data.message || "unknown"));
       return;
     }
 
     setMsg("承認しました");
-
-    loadList();
+    await loadList();
 
   }catch(err){
-
-    setMsg("エラー: "+err);
-
+    setMsg("エラー: " + err);
   }
-
 }
 
-// ================================
-
-window.addEventListener(
-  "load",
-  loadList
-);
+window.addEventListener("load", loadList);
