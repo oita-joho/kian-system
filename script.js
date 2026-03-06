@@ -1,419 +1,317 @@
 // ================================
-// script.js（下書きボタン操作のみ + 送信 + 整理番号必須）
+// 文書起案システム（区分切替 + 稟議添付）
+// submit / list / update
 // ================================
 
-// ★ここをGASのWebアプリURLに差し替え
-const GAS_URL = "https://script.google.com/macros/s/AKfycbwdd39RWeXGAWdKMgXXGzrkC_wy76zo3N6X2PR7dukQzaHYHVG0M_3p1UyJz3Ioej2AzA/exec";
+// ★設定
+const SPREADSHEET_ID = "1JKlTIoES5N53T_VDM0vz9nyPAZV7R00hQOMHfN9c-1E";
+const SHEET_NAME = "data";
+const SAVE_FOLDER_ID = "1s10EghEv_lel1otKvcYEd7Q_Gv_q9sgk"; // 空でもOK（マイドライブ直下）
+const APPROVER_PIN = "1234"; // 承認者PIN（approve.html用）
 
-function $(id){ return document.getElementById(id); }
-function setStatus(msg){ $("status").textContent = msg || ""; }
-function v(id){ return ($(id)?.value || "").trim(); }
-
-// ---------------- UI: type switch ----------------
-function applyTypeUI(){
-  const t = $("type").value;
-  $("form_shishutsu").style.display = (t==="shishutsu") ? "" : "none";
-  $("form_shuunyuu").style.display  = (t==="shuunyuu")  ? "" : "none";
-  $("form_ringi").style.display     = (t==="ringi")     ? "" : "none";
+// ---- 共有ユーティリティ ----
+function json_(obj) {
+  return ContentService
+    .createTextOutput(JSON.stringify(obj))
+    .setMimeType(ContentService.MimeType.JSON);
 }
 
-// ---------------- validation ----------------
-function validate(payload){
-  if(!payload.type) return "未入力：区分";
-  if(!payload.seiriNo) return "未入力：整理番号";
-
-  if(payload.type==="shishutsu"){
-    if(!payload.title) return "未入力：件名";
-    if(!payload.content) return "未入力：内容";
-    if(!payload.amount) return "未入力：支出金額";
-    if(!payload.payee) return "未入力：支払先";
-    return "";
-  }
-
-  if(payload.type==="shuunyuu"){
-    if(!payload.title) return "未入力：件名";
-    if(!payload.content) return "未入力：内容";
-    if(!payload.amount) return "未入力：収入金額";
-    if(!payload.payer) return "未入力：納入者";
-    return "";
-  }
-
-  // ringi
-  if(!payload.title) return "未入力：件名";
-  if(!payload.content) return "未入力：内容";
-  return "";
+function nowJst_() {
+  const d = new Date();
+  const pad = (n) => String(n).padStart(2, "0");
+  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())} ` +
+         `${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`;
 }
 
-// ---------------- attachment ----------------
-function readFileAsDataURL(file){
-  return new Promise((resolve,reject)=>{
-    const r = new FileReader();
-    r.onload = ()=> resolve(r.result);
-    r.onerror = (e)=> reject(e);
-    r.readAsDataURL(file);
-  });
+function safeStr_(v) {
+  return String(v ?? "").trim();
 }
 
-// ---------------- payload ----------------
-async function buildPayload(){
-  const type = $("type").value;
-  const seiriNo = v("seiriNo");
-
-  if(type==="shishutsu"){
-    return {
-      action:"submit",
-      type,
-      seiriNo,
-      label:"支出負担行為",
-      kou: v("s_kou"),
-      moku: v("s_moku"),
-      setsu: v("s_setsu"),
-      title: v("s_title"),
-      content: v("s_content"),
-      amount: v("s_amount"),
-      payee: v("s_payee"),
-      method: $("s_method").value || ""
-    };
+function ensureColumn_(sh, colName) {
+  const lastCol = Math.max(sh.getLastColumn(), 1);
+  const header = sh.getRange(1, 1, 1, lastCol).getValues()[0];
+  if (header.indexOf(colName) === -1) {
+    sh.getRange(1, lastCol + 1).setValue(colName);
   }
-
-  if(type==="shuunyuu"){
-    return {
-      action:"submit",
-      type,
-      seiriNo,
-      label:"収入行為",
-      kou: v("r_kou"),
-      moku: v("r_moku"),
-      setsu: v("r_setsu"),
-      title: v("r_title"),
-      content: v("r_content"),
-      amount: v("r_amount"),
-      payer: v("r_payer"),
-      method: $("r_method").value || ""
-    };
-  }
-
-  // ringi
-  const payload = {
-    action:"submit",
-    type,
-    seiriNo,
-    label:"稟議行為",
-    title: v("g_title"),
-    content: v("g_content"),
-    attachment: null
-  };
-
-  const file = $("g_file")?.files?.[0] || null;
-  if(file){
-    const dataUrl = await readFileAsDataURL(file);
-    payload.attachment = {
-      fileName: file.name,
-      mimeType: file.type || "application/octet-stream",
-      dataUrl
-    };
-  }
-  return payload;
 }
 
-// ---------------- send ----------------
-function setSending(sending){
-  $("sendBtn").disabled = !!sending;
-}
+function sheet_() {
+  const ss = SpreadsheetApp.openById(SPREADSHEET_ID);
+  let sh = ss.getSheetByName(SHEET_NAME);
+  if (!sh) sh = ss.insertSheet(SHEET_NAME);
 
-async function send(){
-  if(!GAS_URL || GAS_URL.includes("PASTE_GAS_WEBAPP_URL_HERE")){
-    setStatus("GAS_URL が未設定です（script.js先頭）。");
-    return;
+  // ヘッダが無ければ作る
+  if (sh.getLastRow() === 0) {
+    sh.appendRow([
+      "kianId",
+      "createdAt",
+      "type",
+      "typeLabel",
+      "seiriNo",       // ★追加
+      "title",
+      "content",
+      "kou",
+      "moku",
+      "setsu",
+      "amount",
+      "payee",
+      "payer",
+      "method",
+      "attachmentUrl",
+      "status",
+      "approvalsJson",
+      "approverA",
+      "approvedAtA",
+      "commentA",
+      "approverB",
+      "approvedAtB",
+      "commentB"
+    ]);
+  } else {
+    // 既存シート用：必要列を自動追加
+    [
+      "seiriNo",
+      "approverA",
+      "approvedAtA",
+      "commentA",
+      "approverB",
+      "approvedAtB",
+      "commentB"
+    ].forEach(name => ensureColumn_(sh, name));
   }
 
-  setSending(true);
-  setStatus("送信準備中…");
+  return sh;
+}
 
-  try{
-    const payload = await buildPayload();
-    const msg = validate(payload);
-    if(msg){
-      setStatus(msg);
-      return;
-    }
+function headerIndex_(sh) {
+  const header = sh.getRange(1, 1, 1, sh.getLastColumn()).getValues()[0];
+  const idx = {};
+  header.forEach((name, i) => { idx[name] = i + 1; });
+  return idx;
+}
 
-    setStatus("送信中…");
-    const res = await fetch(GAS_URL, {
-      method:"POST",
-      headers:{ "Content-Type":"text/plain;charset=utf-8" },
-      body: JSON.stringify(payload)
+function findRowByKianId_(sh, kianId, colKianId) {
+  const last = sh.getLastRow();
+  if (last < 2) return -1;
+  const values = sh.getRange(2, colKianId, last - 1, 1).getValues();
+  for (let i = 0; i < values.length; i++) {
+    if (String(values[i][0]) === kianId) return i + 2;
+  }
+  return -1;
+}
+
+function makeKianId_() {
+  const d = new Date();
+  const pad = (n) => String(n).padStart(2, "0");
+  const base =
+    `${d.getFullYear()}${pad(d.getMonth() + 1)}${pad(d.getDate())}-` +
+    `${pad(d.getHours())}${pad(d.getMinutes())}${pad(d.getSeconds())}`;
+  const rand = String(Math.floor(Math.random() * 900) + 100);
+  return `${base}-${rand}`;
+}
+
+function saveAttachment_(att, kianId) {
+  if (!att || !att.dataUrl) return "";
+
+  const match = String(att.dataUrl).match(/^data:(.+?);base64,(.+)$/);
+  if (!match) return "";
+
+  const mimeType = match[1] || "application/octet-stream";
+  const b64 = match[2];
+  const bytes = Utilities.base64Decode(b64);
+  const blob = Utilities.newBlob(bytes, mimeType, att.fileName || `attachment_${kianId}`);
+
+  let folder;
+  if (SAVE_FOLDER_ID && SAVE_FOLDER_ID.trim() !== "") {
+    folder = DriveApp.getFolderById(SAVE_FOLDER_ID.trim());
+  } else {
+    folder = DriveApp.getRootFolder();
+  }
+
+  const file = folder.createFile(blob);
+  file.setName(`${kianId}_${file.getName()}`);
+  return file.getUrl();
+}
+
+// ================================================
+// doGet
+// ================================================
+function doGet() {
+  return json_({ ok: true, msg: "alive", at: nowJst_() });
+}
+
+// ================================================
+// doPost
+// ================================================
+function doPost(e) {
+  try {
+    const req = JSON.parse((e && e.postData && e.postData.contents) ? e.postData.contents : "{}");
+    const action = safeStr_(req.action || "submit").toLowerCase();
+
+    if (action === "submit")  return json_(submit_(req));
+    if (action === "list")    return json_(list_(req));
+    if (action === "approve") return json_(approve_(req));
+
+    return json_({ ok: false, message: "unknown action: " + action });
+  } catch (err) {
+    return json_({ ok: false, message: String(err) });
+  }
+}
+
+// ================================================
+// submit
+// ================================================
+function submit_(req) {
+  const type = safeStr_(req.type);
+  const typeLabel = safeStr_(req.label);
+  const seiriNo = safeStr_(req.seiriNo);   // ★追加
+
+  const title = safeStr_(req.title);
+  const content = safeStr_(req.content);
+  if (!title) return { ok: false, message: "title required" };
+  if (!content) return { ok: false, message: "content required" };
+  if (!seiriNo) return { ok: false, message: "seiriNo required" }; // ★追加
+
+  const kou = safeStr_(req.kou);
+  const moku = safeStr_(req.moku);
+  const setsu = safeStr_(req.setsu);
+
+  const amount = safeStr_(req.amount);
+  const payee  = safeStr_(req.payee);
+  const payer  = safeStr_(req.payer);
+  const method = safeStr_(req.method);
+
+  let attachmentUrl = "";
+  if (req.attachment) {
+    attachmentUrl = saveAttachment_(req.attachment, "TMP");
+  }
+
+  const sh = sheet_();
+  const idx = headerIndex_(sh);
+
+  const kianId = makeKianId_();
+  const createdAt = nowJst_();
+
+  if (req.attachment) {
+    attachmentUrl = saveAttachment_(req.attachment, kianId);
+  }
+
+  const row = [];
+  row[idx["kianId"] - 1] = kianId;
+  row[idx["createdAt"] - 1] = createdAt;
+  row[idx["type"] - 1] = type;
+  row[idx["typeLabel"] - 1] = typeLabel;
+  row[idx["seiriNo"] - 1] = seiriNo;   // ★追加
+  row[idx["title"] - 1] = title;
+  row[idx["content"] - 1] = content;
+  row[idx["kou"] - 1] = kou;
+  row[idx["moku"] - 1] = moku;
+  row[idx["setsu"] - 1] = setsu;
+  row[idx["amount"] - 1] = amount;
+  row[idx["payee"] - 1] = payee;
+  row[idx["payer"] - 1] = payer;
+  row[idx["method"] - 1] = method;
+  row[idx["attachmentUrl"] - 1] = attachmentUrl;
+  row[idx["status"] - 1] = "pending";
+  row[idx["approvalsJson"] - 1] = "[]";
+
+  sh.appendRow(row);
+
+  return { ok: true, kianId, seiriNo, fileUrl: attachmentUrl || "" };
+}
+
+// ================================================
+// list
+// ================================================
+function list_(req) {
+  const wantStatus = safeStr_(req.status || "pending");
+  const limit = Number(req.limit || 50);
+
+  const sh = sheet_();
+  const idx = headerIndex_(sh);
+
+  const last = sh.getLastRow();
+  if (last < 2) return { ok: true, items: [] };
+
+  const values = sh.getRange(2, 1, last - 1, sh.getLastColumn()).getValues();
+  const items = [];
+
+  for (const row of values) {
+    const status = String(row[idx["status"] - 1] || "pending");
+    if (status !== wantStatus) continue;
+
+    let approvals = [];
+    try { approvals = JSON.parse(String(row[idx["approvalsJson"] - 1] || "[]")); }
+    catch (e) { approvals = []; }
+
+    items.push({
+      kianId: row[idx["kianId"] - 1],
+      createdAt: row[idx["createdAt"] - 1],
+      type: row[idx["type"] - 1],
+      typeLabel: row[idx["typeLabel"] - 1],
+      seiriNo: idx["seiriNo"] ? row[idx["seiriNo"] - 1] : "",   // ★追加
+      title: row[idx["title"] - 1],
+      content: row[idx["content"] - 1],
+      amount: row[idx["amount"] - 1],
+      payee: row[idx["payee"] - 1],
+      payer: row[idx["payer"] - 1],
+      method: row[idx["method"] - 1],
+      attachmentUrl: row[idx["attachmentUrl"] - 1],
+      approvals
     });
-
-    const text = await res.text();
-    let data;
-    try{
-      data = JSON.parse(text);
-    }catch{
-      throw new Error("GASの返却がJSONではありません: " + text);
-    }
-
-    if(!data.ok){
-      setStatus("失敗： " + (data.message || "unknown"));
-      return;
-    }
-
-    setStatus(
-      "送信しました。\n" +
-      "整理番号： " + (payload.seiriNo || "") + "\n" +
-      "起案番号： " + (data.kianId || "") + "\n" +
-      "保存先： " + (data.fileUrl || "")
-    );
-
-    // 送信成功したら、その下書き番号の保存データを削除
-    const no = draftNo_();
-    if(no){
-      const drafts = readDrafts_();
-      if(drafts[no]){
-        delete drafts[no];
-        writeDrafts_(drafts);
-        $("draftList").textContent = "「下書き一覧」を押すと表示されます。";
-      }
-    }
-
-  }catch(err){
-    setStatus("通信エラー： " + err);
-  }finally{
-    setSending(false);
   }
+
+  items.sort((a, b) => String(b.createdAt).localeCompare(String(a.createdAt)));
+
+  return { ok: true, items: items.slice(0, limit) };
 }
 
-// ---------------- clear ----------------
-function clearForm(){
-  const t = $("type").value;
+// ================================================
+// approve
+// ================================================
+function approve_(req) {
+  const kianId = safeStr_(req.kianId);
+  const name = safeStr_(req.approverName);
+  const comment = safeStr_(req.comment);
+  const at = safeStr_(req.at) || nowJst_();
+  const side = safeStr_(req.side).toUpperCase();
 
-  if($("seiriNo")) $("seiriNo").value = "";
+  if (!kianId) return { ok: false, message: "kianId required" };
+  if (!name) return { ok: false, message: "approverName required" };
+  if (side !== "A" && side !== "B") return { ok: false, message: "side must be A or B" };
 
-  if(t==="shishutsu"){
-    ["s_kou","s_moku","s_setsu","s_title","s_content","s_amount","s_payee"].forEach(id=>{
-      if($(id)) $(id).value = "";
-    });
-    if($("s_method")) $("s_method").value = "口座振込";
+  const sh = sheet_();
+  const idx = headerIndex_(sh);
 
-  }else if(t==="shuunyuu"){
-    ["r_kou","r_moku","r_setsu","r_title","r_content","r_amount","r_payer"].forEach(id=>{
-      if($(id)) $(id).value = "";
-    });
-    if($("r_method")) $("r_method").value = "口座振込";
+  const need = ["kianId","status","approverA","approvedAtA","commentA","approverB","approvedAtB","commentB"];
+  const missing = need.filter(k => !idx[k]);
+  if (missing.length) return { ok:false, message:"missing columns: " + missing.join(", ") };
 
-  }else{
-    ["g_title","g_content"].forEach(id=>{
-      if($(id)) $(id).value = "";
-    });
-    if($("g_file")) $("g_file").value = "";
+  const rowNo = findRowByKianId_(sh, kianId, idx["kianId"]);
+  if (rowNo === -1) return { ok: false, message: "kianId not found: " + kianId };
+
+  const aName = safeStr_(sh.getRange(rowNo, idx["approverA"]).getValue());
+  const bName = safeStr_(sh.getRange(rowNo, idx["approverB"]).getValue());
+  if ((side === "A" && bName === name) || (side === "B" && aName === name)) {
+    return { ok:false, message:"同じ名前がA/B両方に入っています。別の承認者名にしてください。" };
   }
 
-  setStatus("");
+  if (side === "A") {
+    if (aName) return { ok:false, message:"承認Aは既に入力済みです（" + aName + "）" };
+    sh.getRange(rowNo, idx["approverA"]).setValue(name);
+    sh.getRange(rowNo, idx["approvedAtA"]).setValue(at);
+    sh.getRange(rowNo, idx["commentA"]).setValue(comment);
+  } else {
+    if (bName) return { ok:false, message:"承認Bは既に入力済みです（" + bName + "）" };
+    sh.getRange(rowNo, idx["approverB"]).setValue(name);
+    sh.getRange(rowNo, idx["approvedAtB"]).setValue(at);
+    sh.getRange(rowNo, idx["commentB"]).setValue(comment);
+  }
+
+  const newA = safeStr_(sh.getRange(rowNo, idx["approverA"]).getValue());
+  const newB = safeStr_(sh.getRange(rowNo, idx["approverB"]).getValue());
+  const status = (newA && newB) ? "approved" : "pending";
+  sh.getRange(rowNo, idx["status"]).setValue(status);
+
+  return { ok:true, status, approverA:newA, approverB:newB };
 }
-
-// ======================================================
-// 下書き（番号で複数保存）
-// ======================================================
-const DRAFTS_KEY = "kian_drafts_multi_v5";
-
-function draftNo_(){
-  return v("draftNo");
-}
-
-function readDrafts_(){
-  const raw = localStorage.getItem(DRAFTS_KEY);
-  if(!raw) return {};
-  try{
-    return JSON.parse(raw);
-  }catch{
-    return {};
-  }
-}
-
-function writeDrafts_(obj){
-  localStorage.setItem(DRAFTS_KEY, JSON.stringify(obj));
-}
-
-function getDraftDataNow_(){
-  const type = $("type").value;
-
-  const base = {
-    type,
-    seiriNo: v("seiriNo"),
-    savedAt: new Date().toISOString()
-  };
-
-  if(type==="shishutsu"){
-    return {
-      ...base,
-      s_kou: v("s_kou"),
-      s_moku: v("s_moku"),
-      s_setsu: v("s_setsu"),
-      s_title: v("s_title"),
-      s_content: v("s_content"),
-      s_amount: v("s_amount"),
-      s_payee: v("s_payee"),
-      s_method: $("s_method").value || ""
-    };
-  }
-
-  if(type==="shuunyuu"){
-    return {
-      ...base,
-      r_kou: v("r_kou"),
-      r_moku: v("r_moku"),
-      r_setsu: v("r_setsu"),
-      r_title: v("r_title"),
-      r_content: v("r_content"),
-      r_amount: v("r_amount"),
-      r_payer: v("r_payer"),
-      r_method: $("r_method").value || ""
-    };
-  }
-
-  // ringi（添付は保存しない）
-  return {
-    ...base,
-    g_title: v("g_title"),
-    g_content: v("g_content")
-  };
-}
-
-function applyDraftData_(d){
-  if(!d) return;
-
-  if(d.type){
-    $("type").value = d.type;
-    applyTypeUI();
-  }
-
-  if($("seiriNo")) $("seiriNo").value = d.seiriNo || "";
-
-  if(d.type==="shishutsu"){
-    $("s_kou").value = d.s_kou || "";
-    $("s_moku").value = d.s_moku || "";
-    $("s_setsu").value = d.s_setsu || "";
-    $("s_title").value = d.s_title || "";
-    $("s_content").value = d.s_content || "";
-    $("s_amount").value = d.s_amount || "";
-    $("s_payee").value = d.s_payee || "";
-    $("s_method").value = d.s_method || "口座振込";
-
-  }else if(d.type==="shuunyuu"){
-    $("r_kou").value = d.r_kou || "";
-    $("r_moku").value = d.r_moku || "";
-    $("r_setsu").value = d.r_setsu || "";
-    $("r_title").value = d.r_title || "";
-    $("r_content").value = d.r_content || "";
-    $("r_amount").value = d.r_amount || "";
-    $("r_payer").value = d.r_payer || "";
-    $("r_method").value = d.r_method || "口座振込";
-
-  }else{
-    $("g_title").value = d.g_title || "";
-    $("g_content").value = d.g_content || "";
-    if($("g_file")) $("g_file").value = "";
-  }
-}
-
-function renderDraftList(){
-  const box = $("draftList");
-  const drafts = readDrafts_();
-  const keys = Object.keys(drafts);
-
-  if(keys.length === 0){
-    box.textContent = "（下書きはありません）";
-    return;
-  }
-
-  keys.sort((a,b)=> (drafts[b]?.savedAt || "").localeCompare(drafts[a]?.savedAt || ""));
-
-  const typeLabel = (t)=>{
-    if(t==="shishutsu") return "支出";
-    if(t==="shuunyuu") return "収入";
-    return "稟議";
-  };
-
-  box.textContent = keys.map(k=>{
-    const d = drafts[k] || {};
-    const at = (d.savedAt || "").replace("T"," ").slice(0,19);
-    const title =
-      d.type==="shishutsu" ? (d.s_title || "") :
-      d.type==="shuunyuu" ? (d.r_title || "") :
-      (d.g_title || "");
-    const seiri = d.seiriNo ? ` No:${d.seiriNo}` : "";
-    return `#${k}  ${at}  [${typeLabel(d.type)}]${seiri}  ${String(title).slice(0,24)}`;
-  }).join("\n");
-}
-
-function saveDraftByNo(){
-  const no = draftNo_();
-  if(!no){
-    setStatus("下書き番号を入力してください。");
-    return;
-  }
-
-  const drafts = readDrafts_();
-  drafts[no] = getDraftDataNow_();
-  writeDrafts_(drafts);
-
-  setStatus(`下書きを保存しました（番号：${no}）`);
-}
-
-function loadDraftByNo(){
-  const no = draftNo_();
-  if(!no){
-    setStatus("下書き番号を入力してください。");
-    return;
-  }
-
-  const drafts = readDrafts_();
-  if(!drafts[no]){
-    setStatus(`その番号の下書きがありません（番号：${no}）`);
-    return;
-  }
-
-  applyDraftData_(drafts[no]);
-  setStatus(`下書きを復元しました（番号：${no}）`);
-}
-
-function deleteDraftByNo(){
-  const no = draftNo_();
-  if(!no){
-    setStatus("下書き番号を入力してください。");
-    return;
-  }
-
-  const drafts = readDrafts_();
-  if(!drafts[no]){
-    setStatus(`その番号の下書きがありません（番号：${no}）`);
-    return;
-  }
-
-  if(!confirm(`下書き（番号：${no}）を削除しますか？`)) return;
-
-  delete drafts[no];
-  writeDrafts_(drafts);
-
-  setStatus(`下書きを削除しました（番号：${no}）`);
-  $("draftList").textContent = "「下書き一覧」を押すと表示されます。";
-}
-
-// ---------------- init ----------------
-window.addEventListener("load", ()=>{
-  applyTypeUI();
-
-  if($("draftList")){
-  $("draftList").textContent = "";
-}
-
-  $("type").addEventListener("change", applyTypeUI);
-
-  $("sendBtn").addEventListener("click", send);
-  $("clearBtn").addEventListener("click", clearForm);
-
-  $("saveDraftBtn").addEventListener("click", saveDraftByNo);
-  $("loadDraftBtn").addEventListener("click", loadDraftByNo);
-  $("deleteDraftBtn").addEventListener("click", deleteDraftByNo);
-  $("listDraftBtn").addEventListener("click", renderDraftList);
-});
