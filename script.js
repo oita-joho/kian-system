@@ -1,7 +1,7 @@
 // ================================
 // script.js
 // ================================
-const GAS_URL = "https://script.google.com/macros/s/AKfycbzaSWN6j9G8KAPJQREm0yDzkzRC76U52YvU7KGjSlE-1KDsISObd5TajXrv2hNP3hs_aA/exec";
+const GAS_URL = "YOUR_GAS_WEBAPP_URL";
 
 function $(id){ return document.getElementById(id); }
 function v(id){ return ($(id)?.value || "").trim(); }
@@ -32,6 +32,8 @@ function validate(payload){
     if(!payload.title) return "未入力：件名";
     if(!payload.content) return "未入力：内容";
   }
+
+  if(payload.attachments.length > 5) return "添付PDFは5件までです";
   return "";
 }
 
@@ -45,19 +47,18 @@ function readFileAsDataURL(file){
 }
 
 async function buildPayload(){
-
   const type = $("type").value;
-  const seiriNo = $("seiriNo").value.trim();
+  const seiriNo = $("seiriNo") ? $("seiriNo").value.trim() : "";
 
-  let payload = {
-    action:"submit",
-    type:type,
-    seiriNo:seiriNo,
-    label:$("type").selectedOptions[0].text,
-    attachments:[]
+  const payload = {
+    action: "submit",
+    type,
+    seiriNo,
+    label: $("type").selectedOptions[0]?.text || "",
+    attachments: []
   };
 
-  if(type==="shishutsu"){
+  if(type === "shishutsu"){
     payload.title = v("s_title");
     payload.content = v("s_content");
     payload.kou = v("s_kou");
@@ -65,10 +66,10 @@ async function buildPayload(){
     payload.setsu = v("s_setsu");
     payload.amount = v("s_amount");
     payload.payee = v("s_payee");
-    payload.method = $("s_method").value;
+    payload.method = $("s_method").value || "";
   }
 
-  if(type==="shuunyuu"){
+  if(type === "shuunyuu"){
     payload.title = v("r_title");
     payload.content = v("r_content");
     payload.kou = v("r_kou");
@@ -76,35 +77,30 @@ async function buildPayload(){
     payload.setsu = v("r_setsu");
     payload.amount = v("r_amount");
     payload.payer = v("r_payer");
-    payload.method = $("r_method").value;
+    payload.method = $("r_method").value || "";
   }
 
-  if(type==="ringi"){
+  if(type === "ringi"){
     payload.title = v("g_title");
     payload.content = v("g_content");
   }
 
-  // 添付PDF
-  const files = $("files").files;
-
+  const files = $("files")?.files || [];
   if(files.length > 5){
     throw new Error("PDFは5件までです");
   }
 
-  for(let file of files){
-
-    if(file.type !== "application/pdf"){
+  for (const file of files) {
+    if (file.type !== "application/pdf") {
       throw new Error("PDFのみ添付できます");
     }
 
     const dataUrl = await readFileAsDataURL(file);
-
     payload.attachments.push({
-      fileName:file.name,
-      mimeType:file.type,
-      dataUrl:dataUrl
+      fileName: file.name,
+      mimeType: file.type,
+      dataUrl
     });
-
   }
 
   return payload;
@@ -154,7 +150,8 @@ async function send(){
       "送信しました。\n" +
       "整理番号: " + (data.seiriNo || "") + "\n" +
       "起案番号: " + (data.kianId || "") + "\n" +
-      "PDF: " + (data.pdfUrl || "")
+      "起案書PDF: " + (data.pdfUrl || "") + "\n" +
+      "添付PDF件数: " + (data.attachmentCount ?? 0)
     );
 
     const no = draftNo_();
@@ -173,22 +170,27 @@ async function send(){
 }
 
 function clearForm(){
+  if($("type")) $("type").value = "";
   if($("seiriNo")) $("seiriNo").value = "";
 
-  ["s_kou","s_moku","s_setsu","s_title","s_content","s_amount","s_payee",
-   "r_kou","r_moku","r_setsu","r_title","r_content","r_amount","r_payer",
-   "g_title","g_content"].forEach(id=>{
+  [
+    "s_kou","s_moku","s_setsu","s_title","s_content","s_amount","s_payee",
+    "r_kou","r_moku","r_setsu","r_title","r_content","r_amount","r_payer",
+    "g_title","g_content"
+  ].forEach(id=>{
     if($(id)) $(id).value = "";
   });
 
   if($("s_method")) $("s_method").value = "口座振込";
   if($("r_method")) $("r_method").value = "口座振込";
-  if($("g_file")) $("g_file").value = "";
+  if($("files")) $("files").value = "";
+
+  applyTypeUI();
   setStatus("");
 }
 
 // ===== 下書き =====
-const DRAFTS_KEY = "kian_drafts_multi_v6";
+const DRAFTS_KEY = "kian_drafts_multi_v7";
 
 function draftNo_(){ return v("draftNo"); }
 
@@ -275,7 +277,6 @@ function applyDraftData_(d){
   } else {
     $("g_title").value = d.g_title || "";
     $("g_content").value = d.g_content || "";
-    if($("g_file")) $("g_file").value = "";
   }
 }
 
