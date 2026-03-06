@@ -1,32 +1,29 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="ja">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>文書起案システム</title>
-  <link rel="stylesheet" href="./style.css" />
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
   <div class="container">
     <h1>文書起案システム</h1>
 
-    <!-- 下書き -->
     <div class="draft-area">
       <div class="draft-row">
-        <input id="draftNo" type="text" placeholder="例：1">
+        <input id="draftNo" type="text" placeholder="下書き番号">
         <button id="saveDraftBtn" type="button">下書き保存</button>
         <button id="loadDraftBtn" type="button">下書き復元</button>
         <button id="deleteDraftBtn" type="button">下書き削除</button>
         <button id="listDraftBtn" class="listBtn" type="button">下書き一覧</button>
       </div>
-
       <div class="draft-note">「下書き一覧」を押すと表示されます。</div>
       <pre id="draftList" class="draftList"></pre>
     </div>
 
     <hr>
 
-    <!-- 区分＋整理番号 -->
     <div class="type-seiri-row">
       <div class="field">
         <label for="type">区分</label>
@@ -40,12 +37,10 @@
 
       <div class="field">
         <label for="seiriNo">整理番号</label>
-        <input id="seiriNo" type="text" placeholder="例：R6-001" required>
+        <input id="seiriNo" type="text" placeholder="例：R7-S-001" required>
       </div>
     </div>
 
-    <!-- ここから下に各フォーム -->
-    <!-- 支出 -->
     <div id="form_shishutsu" style="display:none;">
       <div class="triple">
         <div class="field">
@@ -87,7 +82,6 @@
       </div>
     </div>
 
-    <!-- 収入 -->
     <div id="form_shuunyuu" style="display:none;">
       <div class="triple">
         <div class="field">
@@ -129,7 +123,6 @@
       </div>
     </div>
 
-    <!-- 稟議 -->
     <div id="form_ringi" style="display:none;">
       <label for="g_title">件名</label>
       <input id="g_title" type="text">
