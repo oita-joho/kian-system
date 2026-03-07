@@ -193,6 +193,7 @@ async function buildPayload(){
 
   if(type === "shishutsu"){
     payload.title = v("s_title");
+    payload.writer = v("s_writer");
     payload.content = v("s_content");
     payload.kou = v("s_kou");
     payload.moku = v("s_moku");
@@ -204,6 +205,7 @@ async function buildPayload(){
 
   if(type === "shuunyuu"){
     payload.title = v("r_title");
+    payload.writer = v("s_writer");
     payload.content = v("r_content");
     payload.kou = v("r_kou");
     payload.moku = v("r_moku");
@@ -215,6 +217,7 @@ async function buildPayload(){
 
   if(type === "ringi"){
     payload.title = v("g_title");
+    payload.writer = v("s_writer");
     payload.content = v("g_content");
   }
 
@@ -341,6 +344,7 @@ function fillFormFromDraft_(d){
     if($("s_moku")) $("s_moku").value = d.moku || "";
     if($("s_setsu")) $("s_setsu").value = d.setsu || "";
     if($("s_title")) $("s_title").value = d.title || "";
+    if($("s_writer")) $("s_writer").value = d.writer || "";
     if($("s_content")) $("s_content").value = d.content || "";
     if($("s_amount")) $("s_amount").value = d.amount || "";
     if($("s_payee")) $("s_payee").value = d.payee || "";
@@ -352,6 +356,7 @@ function fillFormFromDraft_(d){
     if($("r_moku")) $("r_moku").value = d.moku || "";
     if($("r_setsu")) $("r_setsu").value = d.setsu || "";
     if($("r_title")) $("r_title").value = d.title || "";
+    if($("s_writer")) $("s_writer").value = d.writer || "";
     if($("r_content")) $("r_content").value = d.content || "";
     if($("r_amount")) $("r_amount").value = d.amount || "";
     if($("r_payer")) $("r_payer").value = d.payer || "";
@@ -360,6 +365,7 @@ function fillFormFromDraft_(d){
 
   if(d.type === "ringi"){
     if($("g_title")) $("g_title").value = d.title || "";
+    if($("s_writer")) $("s_writer").value = d.writer || "";
     if($("g_content")) $("g_content").value = d.content || "";
   }
 
