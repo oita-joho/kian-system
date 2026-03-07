@@ -191,7 +191,76 @@ function clearForm(){
 
 // ===== 下書き =====
 const DRAFTS_KEY = "kian_drafts_multi_v7";
+let selectedFiles = [];
+function renderSelectedFiles(){
+  const box = $("fileList");
+  if(!box) return;
 
+  if(selectedFiles.length === 0){
+    box.innerHTML = "";
+    return;
+  }
+
+  box.innerHTML = selectedFiles.map((file, i) => `
+    <li>
+      <div class="fileItemRow">
+        <span>${i + 1}. ${file.name}</span>
+        <button type="button" class="fileRemoveBtn secondary" onclick="removeSelectedFile(${i})">削除</button>
+      </div>
+    </li>
+  `).join("");
+}
+
+function removeSelectedFile(index){
+  selectedFiles.splice(index, 1);
+  renderSelectedFiles();
+}
+
+function addSelectedFile(){
+  const input = $("fileOne");
+  const file = input?.files?.[0];
+
+  if(!file){
+    setStatus("追加するPDFを選んでください。");
+    return;
+  }
+
+  if(file.type !== "application/pdf"){
+    setStatus("PDFのみ追加できます。");
+    input.value = "";
+    return;
+  }
+
+  if(selectedFiles.length >= 5){
+    setStatus("添付PDFは最大5件です。");
+    input.value = "";
+    return;
+  }
+
+  const duplicated = selectedFiles.some(f =>
+    f.name === file.name &&
+    f.size === file.size &&
+    f.lastModified === file.lastModified
+  );
+
+  if(duplicated){
+    setStatus("同じファイルは追加済みです。");
+    input.value = "";
+    return;
+  }
+
+  selectedFiles.push(file);
+  input.value = "";
+  renderSelectedFiles();
+  setStatus(`添付を追加しました（${selectedFiles.length}件）`);
+}
+
+function clearSelectedFiles(){
+  selectedFiles = [];
+  if($("fileOne")) $("fileOne").value = "";
+  renderSelectedFiles();
+  setStatus("添付を全削除しました。");
+}
 function draftNo_(){ return v("draftNo"); }
 
 function readDrafts_(){
