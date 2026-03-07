@@ -3,8 +3,112 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>文書起案システム</title>
+  <title>大分県柔道連盟 文書起案システム</title>
   <link rel="stylesheet" href="style.css">
+  <style>
+    .file-row{
+      display:flex;
+      gap:12px;
+      align-items:center;
+      margin-top:10px;
+      flex-wrap:wrap;
+    }
+    .file-row input[type=file]{
+      flex:1;
+      min-width:260px;
+    }
+    .addBtn{
+      background:#2563eb;
+      color:#fff;
+      border:none;
+    }
+    .addBtn:hover{
+      background:#1d4ed8;
+    }
+    .deleteBtn{
+      background:#dc2626;
+      color:#fff;
+      border:none;
+    }
+    .deleteBtn:hover{
+      background:#b91c1c;
+    }
+    .fileList{
+      margin:10px 0 0;
+      padding-left:20px;
+      font-size:13px;
+    }
+    .fileList li{
+      margin-bottom:6px;
+    }
+    .fileItemRow{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+    }
+    .fileRemoveBtn{
+      padding:4px 10px;
+      font-size:12px;
+      border-radius:8px;
+    }
+
+    .sheetDraftArea{
+      margin:18px 0;
+      padding:12px;
+      border:1px solid #e5e7eb;
+      border-radius:14px;
+      background:#fafafa;
+    }
+    .sheetDraftTitle{
+      font-weight:700;
+      margin-bottom:8px;
+    }
+    .sheetDraftList{
+      display:grid;
+      gap:10px;
+      margin-top:10px;
+    }
+    .sheetDraftCard{
+      border:1px solid #d1d5db;
+      border-radius:12px;
+      background:#fff;
+      padding:10px 12px;
+    }
+    .sheetDraftMeta{
+      font-size:12px;
+      color:#6b7280;
+      margin-bottom:4px;
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+    }
+    .sheetDraftTitleText{
+      font-weight:700;
+      margin-bottom:6px;
+    }
+    .sheetDraftButtons{
+      display:flex;
+      gap:8px;
+      flex-wrap:wrap;
+      margin-top:8px;
+    }
+    .miniBtn{
+      padding:6px 10px;
+      font-size:12px;
+      border-radius:8px;
+    }
+    .miniPrimary{
+      background:#111827;
+      color:#fff;
+      border:none;
+    }
+    .miniDanger{
+      background:#dc2626;
+      color:#fff;
+      border:none;
+    }
+  </style>
 </head>
 <body>
   <div class="container">
@@ -19,9 +123,13 @@
         <button id="deleteDraftBtn" type="button">下書き削除</button>
         <button id="listDraftBtn" class="listBtn" type="button">下書き一覧</button>
       </div>
+      <div class="draft-note">下書きはスプレッドシートに保存されます。添付ファイルは下書きには含まれません。</div>
+    </div>
 
-      <div class="draft-note">「下書き一覧」を押すと表示されます。</div>
-      <pre id="draftList" class="draftList"></pre>
+    <!-- スプレッドシート下書き一覧 -->
+    <div class="sheetDraftArea">
+      <div class="sheetDraftTitle">下書き一覧</div>
+      <div id="draftSheetList" class="sheetDraftList">読み込み中...</div>
     </div>
 
     <hr>
@@ -39,16 +147,16 @@
       </div>
 
       <div class="field">
-        <label for="seiriNo">整理番号</label>
+        <label for="seiriNo">整理番号（半角数字・先頭0不可）</label>
         <input
-  id="seiriNo"
-  type="text"
-  placeholder="例：1"
-  inputmode="numeric"
-  pattern="[1-9][0-9]*"
-  maxlength="6"
-  required
->
+          id="seiriNo"
+          type="text"
+          placeholder="例：1"
+          inputmode="numeric"
+          pattern="[1-9][0-9]*"
+          maxlength="6"
+          required
+        >
       </div>
     </div>
 
@@ -59,12 +167,10 @@
           <label for="s_kou">項</label>
           <input id="s_kou" type="text">
         </div>
-
         <div class="field">
           <label for="s_moku">目</label>
           <input id="s_moku" type="text">
         </div>
-
         <div class="field">
           <label for="s_setsu">節</label>
           <input id="s_setsu" type="text">
@@ -82,12 +188,10 @@
           <label for="s_amount">支出金額</label>
           <input id="s_amount" type="number">
         </div>
-
         <div class="field">
           <label for="s_payee">支払先</label>
           <input id="s_payee" type="text">
         </div>
-
         <div class="field">
           <label for="s_method">支払方法</label>
           <select id="s_method">
@@ -105,12 +209,10 @@
           <label for="r_kou">項</label>
           <input id="r_kou" type="text">
         </div>
-
         <div class="field">
           <label for="r_moku">目</label>
           <input id="r_moku" type="text">
         </div>
-
         <div class="field">
           <label for="r_setsu">節</label>
           <input id="r_setsu" type="text">
@@ -128,12 +230,10 @@
           <label for="r_amount">収入金額</label>
           <input id="r_amount" type="number">
         </div>
-
         <div class="field">
           <label for="r_payer">納入者</label>
           <input id="r_payer" type="text">
         </div>
-
         <div class="field">
           <label for="r_method">受取方法</label>
           <select id="r_method">
@@ -153,26 +253,15 @@
       <textarea id="g_content" rows="5"></textarea>
     </div>
 
-    <!-- 添付PDF：1件ずつ追加 -->
+    <!-- 添付 -->
+    <label for="fileOne">添付ファイル（最大5）</label>
     <div class="file-row">
-
-  <input id="fileOne" type="file">
-
-  <button id="addFileBtn" type="button" class="addBtn">
-    添付を追加
-  </button>
-
-  <button id="clearFilesBtn" type="button" class="deleteBtn">
-    添付を全削除
-  </button>
-
-</div>
-
-<div class="help">
-ファイル添付（最大5） / 1件ずつ追加
-</div>
-
-<ul id="fileList" class="fileList"></ul>
+      <input id="fileOne" type="file">
+      <button id="addFileBtn" type="button" class="addBtn">添付を追加</button>
+      <button id="clearFilesBtn" type="button" class="deleteBtn">添付を全削除</button>
+    </div>
+    <div class="help">ファイル添付（最大5） / 1件ずつ追加</div>
+    <ul id="fileList" class="fileList"></ul>
 
     <!-- 操作 -->
     <div class="action-row">
