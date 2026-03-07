@@ -4,6 +4,7 @@
 // ================================
 const GAS_URL = "https://script.google.com/macros/s/AKfycbxfuFEkPyAfhyiN6Ai5KDi-7fkpFAOfZmQcEMKdoZq7jVm2me6GJu9mxYAk28KjmjTIpA/exec";
 
+
 function $(id){ return document.getElementById(id); }
 function v(id){ return ($(id)?.value || "").trim(); }
 function setStatus(msg){ $("status").textContent = msg || ""; }
@@ -22,7 +23,7 @@ function applyTypeUI(){
 }
 
 // ================================
-// 整理番号制御
+// 整理番号ルール
 // ================================
 function bindSeiriNoRule(){
   const seiri = $("seiriNo");
@@ -32,6 +33,41 @@ function bindSeiriNoRule(){
     this.value = this.value.replace(/[^0-9]/g, "");
     this.value = this.value.replace(/^0+/, "");
   });
+}
+
+// ================================
+// 表示用
+// ================================
+function escapeHtml_(s){
+  return String(s ?? "")
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;");
+}
+
+function typeLabelJa_(t){
+  if(t === "shishutsu") return "支出";
+  if(t === "shuunyuu") return "収入";
+  return "稟議";
+}
+
+// ================================
+// API
+// ================================
+async function api_(payload){
+  const res = await fetch(GAS_URL, {
+    method: "POST",
+    headers: { "Content-Type":"text/plain;charset=utf-8" },
+    body: JSON.stringify(payload)
+  });
+
+  const text = await res.text();
+  try{
+    return JSON.parse(text);
+  }catch{
+    throw new Error("GASの応答がJSONではありません: " + text);
+  }
 }
 
 // ================================
@@ -64,25 +100,7 @@ function validate(payload){
 }
 
 // ================================
-// API
-// ================================
-async function api_(payload){
-  const res = await fetch(GAS_URL, {
-    method: "POST",
-    headers: { "Content-Type":"text/plain;charset=utf-8" },
-    body: JSON.stringify(payload)
-  });
-
-  const text = await res.text();
-  try{
-    return JSON.parse(text);
-  }catch{
-    throw new Error("GASの応答がJSONではありません: " + text);
-  }
-}
-
-// ================================
-// File -> DataURL
+// 添付ファイル
 // ================================
 function readFileAsDataURL(file){
   return new Promise((resolve, reject)=>{
@@ -91,17 +109,6 @@ function readFileAsDataURL(file){
     r.onerror = reject;
     r.readAsDataURL(file);
   });
-}
-
-// ================================
-// 添付表示
-// ================================
-function escapeHtml_(s){
-  return String(s ?? "")
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;");
 }
 
 function renderSelectedFiles(){
@@ -170,7 +177,7 @@ function clearSelectedFiles(){
 }
 
 // ================================
-// 送信データ
+// payload
 // ================================
 async function buildPayload(){
   const type = $("type").value;
@@ -266,7 +273,6 @@ async function send(){
       "添付件数: " + (data.attachmentCount ?? 0)
     );
 
-    // 下書き番号があれば draft を削除
     const no = draftNo_();
     if(no){
       try{
@@ -277,6 +283,7 @@ async function send(){
       }catch(e){}
     }
 
+    clearForm();
     await loadDraftsFromSheet();
 
   }catch(err){
@@ -310,20 +317,13 @@ function clearForm(){
   renderSelectedFiles();
 
   applyTypeUI();
-  setStatus("");
 }
 
 // ================================
-// 下書き保存・復元・削除
+// 下書き
 // ================================
 function draftNo_(){
   return v("draftNo");
-}
-
-function typeLabelJa_(t){
-  if(t === "shishutsu") return "支出";
-  if(t === "shuunyuu") return "収入";
-  return "稟議";
 }
 
 function fillFormFromDraft_(d){
@@ -377,7 +377,7 @@ async function saveDraftByNo(){
     const payload = await buildPayload();
     payload.action = "saveDraft";
     payload.draftNo = no;
-    payload.attachments = []; // 下書きには添付を含めない
+    payload.attachments = []; // 下書きには添付を保存しない
 
     const data = await api_(payload);
 
@@ -386,62 +386,15 @@ async function saveDraftByNo(){
       return;
     }
 
-    setStatus(`下書きをスプレッドシートに保存しました（番号：${no}）`);
+    setStatus(`下書きを保存しました（番号：${no}）`);
     await loadDraftsFromSheet();
   }catch(err){
     setStatus("下書き保存エラー: " + err);
   }
 }
 
-async function loadDraftByNo(){
-  const no = draftNo_();
-  if(!no){
-    setStatus("下書き番号を入力してください。");
-    return;
-  }
-
-  if(draftItemsCache.length === 0){
-    await loadDraftsFromSheet();
-  }
-
-  const item = draftItemsCache.find(d => String(d.draftNo) === String(no));
-  if(!item){
-    setStatus(`その番号の下書きがありません（番号：${no}）`);
-    return;
-  }
-
-  fillFormFromDraft_(item);
-}
-
-async function deleteDraftByNo(){
-  const no = draftNo_();
-  if(!no){
-    setStatus("下書き番号を入力してください。");
-    return;
-  }
-
-  if(!confirm(`下書き（番号：${no}）を削除しますか？`)) return;
-
-  try{
-    const data = await api_({
-      action: "deleteDraft",
-      draftNo: no
-    });
-
-    if(!data.ok){
-      setStatus("下書き削除失敗: " + (data.message || "unknown"));
-      return;
-    }
-
-    setStatus(`下書きを削除しました（番号：${no}）`);
-    await loadDraftsFromSheet();
-  }catch(err){
-    setStatus("下書き削除エラー: " + err);
-  }
-}
-
 // ================================
-// 下書き一覧（シート）
+// 下書き一覧
 // ================================
 function renderDraftsFromSheet(items){
   const box = $("draftSheetList");
@@ -454,21 +407,33 @@ function renderDraftsFromSheet(items){
     return;
   }
 
-  box.innerHTML = draftItemsCache.map((d, i) => `
-    <div class="sheetDraftCard">
-      <div class="sheetDraftMeta">
-        <span>下書き番号: ${escapeHtml_(d.draftNo || "")}</span>
-        <span>区分: ${escapeHtml_(d.typeLabel || typeLabelJa_(d.type))}</span>
-        <span>整理番号: ${escapeHtml_(d.seiriNo || "")}</span>
-        <span>更新: ${escapeHtml_(d.updatedAt || d.createdAt || "")}</span>
+  box.innerHTML = `
+    <div class="draftTable">
+      <div class="draftHead">
+        <div>番号</div>
+        <div>区分</div>
+        <div>整理番号</div>
+        <div>件名</div>
+        <div>更新</div>
+        <div></div>
       </div>
-      <div class="sheetDraftTitleText">${escapeHtml_(d.title || "（件名なし）")}</div>
-      <div class="sheetDraftButtons">
-        <button type="button" class="miniBtn miniPrimary" onclick="restoreDraftFromList(${i})">復元</button>
-        <button type="button" class="miniBtn miniDanger" onclick="deleteDraftFromList(${i})">削除</button>
-      </div>
+
+      ${draftItemsCache.map((d,i)=>`
+        <div class="draftRow">
+          <div>${escapeHtml_(d.draftNo || "")}</div>
+          <div>${escapeHtml_(d.typeLabel || typeLabelJa_(d.type))}</div>
+          <div>${escapeHtml_(d.seiriNo || "")}</div>
+          <div class="draftTitle">${escapeHtml_(d.title || "(件名なし)")}</div>
+          <div>${escapeHtml_(d.updatedAt || d.createdAt || "")}</div>
+
+          <div class="draftBtns">
+            <button class="miniBtn miniPrimary" onclick="restoreDraftFromList(${i})">復元</button>
+            <button class="miniBtn miniDanger" onclick="deleteDraftFromList(${i})">削除</button>
+          </div>
+        </div>
+      `).join("")}
     </div>
-  `).join("");
+  `;
 }
 
 async function loadDraftsFromSheet(){
@@ -486,6 +451,7 @@ async function loadDraftsFromSheet(){
     }
 
     renderDraftsFromSheet(data.items || []);
+    setStatus("");
   }catch(err){
     if(box) box.textContent = "読み込み失敗";
     console.error(err);
