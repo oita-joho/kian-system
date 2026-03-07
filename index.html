@@ -114,21 +114,30 @@
   <div class="container">
     <h1>大分県柔道連盟　文書起案システム</h1>
 
-    <!-- 下書き -->
-    <div class="draft-area">
-      <div class="draft-row">
-        <input id="draftNo" type="text" placeholder="下書き番号">
-        <button id="saveDraftBtn" type="button">下書き保存</button>
-        <button id="listDraftBtn" class="listBtn" type="button">下書き一覧</button>
-      </div>
-      <div class="draft-note">下書きはスプレッドシートに保存されます。添付ファイルは下書きには含まれません。</div>
+ <div class="draft-layout">
+
+  <!-- 左：下書き操作 -->
+  <div class="draft-left">
+    <div class="draft-tools">
+      <input id="draftNo" type="text" placeholder="下書き番号">
+      <button id="saveDraftBtn" type="button">下書き保存</button>
+      <button id="listDraftBtn" class="listBtn" type="button">下書き一覧</button>
     </div>
 
-    <!-- スプレッドシート下書き一覧 -->
+    <div class="draft-note">
+      下書きはスプレッドシートに保存されます。添付ファイルは下書きには含まれません。
+    </div>
+  </div>
+
+  <!-- 右：下書き一覧 -->
+  <div class="draft-right">
     <div class="sheetDraftArea">
       <div class="sheetDraftTitle">下書き一覧</div>
       <div id="draftSheetList" class="sheetDraftList">読み込み中...</div>
     </div>
+  </div>
+
+</div>
 
     <hr>
 
