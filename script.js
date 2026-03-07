@@ -97,9 +97,7 @@ function addSelectedFile(){
   }
 
   if(file.type !== "application/pdf"){
-    setStatus("PDFのみ追加できます。");
-    input.value = "";
-    return;
+
   }
 
   if(selectedFiles.length >= 5){
