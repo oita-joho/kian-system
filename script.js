@@ -145,7 +145,19 @@ function escapeHtml_(s){
 // ================================
 async function buildPayload(){
   const type = $("type").value;
-  const seiriNo = $("seiriNo") ? $("seiriNo").value.trim() : "";
+  const seiri = $("seiriNo");
+
+if(seiri){
+  seiri.addEventListener("input", function(){
+
+    // 数字以外削除
+    this.value = this.value.replace(/[^0-9]/g,"");
+
+    // 先頭0削除
+    this.value = this.value.replace(/^0+/,"");
+
+  });
+}
 
   const payload = {
     action: "submit",
