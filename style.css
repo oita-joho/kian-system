@@ -132,20 +132,19 @@ select:required:invalid{
 /* 左上の3つを横並び固定 */
 .draft-tools{
   display:grid;
-  grid-template-columns: 100px 1fr 1fr;
+  grid-template-columns: 100px 130px 130px;
   gap:10px;
   align-items:center;
+  justify-content:start;
 }
 
-.draft-tools input,
+.draft-tools input{
+  width:100px;
+}
+
 .draft-tools button{
+  width:130px;
   height:42px;
-  margin:0;
-}
-
-.draft-tools button{
-  padding:0 10px;
-  font-size:14px;
 }
 
 /* 下書き説明 */
