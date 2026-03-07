@@ -535,8 +535,6 @@ window.addEventListener("load", async ()=>{
   $("clearBtn").addEventListener("click", clearForm);
 
   $("saveDraftBtn").addEventListener("click", saveDraftByNo);
-  $("loadDraftBtn").addEventListener("click", loadDraftByNo);
-  $("deleteDraftBtn").addEventListener("click", deleteDraftByNo);
   $("listDraftBtn").addEventListener("click", loadDraftsFromSheet);
 
   if($("addFileBtn")) $("addFileBtn").addEventListener("click", addSelectedFile);
