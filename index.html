@@ -39,47 +39,47 @@
     <hr>
 
     <!-- 区分＋整理番号 -->
-    <div class="type-seiri-row">
-      <div class="field">
-        <label for="type">区分</label>
-        <select id="type" required>
-          <option value="">選択してください</option>
-          <option value="shishutsu">支出負担行為</option>
-          <option value="shuunyuu">収入行為</option>
-          <option value="ringi">稟議行為</option>
-        </select>
-      </div>
+<div class="five-row">
+  <div class="field">
+    <label for="type">区分</label>
+    <select id="type" required>
+      <option value="">選択してください</option>
+      <option value="shishutsu">支出負担行為</option>
+      <option value="shuunyuu">収入行為</option>
+      <option value="ringi">稟議行為</option>
+    </select>
+  </div>
 
-      <div class="field">
-        <label for="seiriNo">整理番号（半角数字・先頭0不可）</label>
-        <input
-          id="seiriNo"
-          type="text"
-          placeholder="例：1"
-          inputmode="numeric"
-          pattern="[1-9][0-9]*"
-          maxlength="6"
-          required
-        >
-      </div>
-    </div>
+  <div class="field">
+    <label for="kou">項</label>
+    <input id="kou" type="text">
+  </div>
 
-    <!-- 支出 -->
-    <div id="form_shishutsu" style="display:none;">
-      <div class="triple">
-        <div class="field">
-          <label for="s_kou">項</label>
-          <input id="s_kou" type="text">
-        </div>
-        <div class="field">
-          <label for="s_moku">目</label>
-          <input id="s_moku" type="text">
-        </div>
-        <div class="field">
-          <label for="s_setsu">節</label>
-          <input id="s_setsu" type="text">
-        </div>
-      </div>
+  <div class="field">
+    <label for="moku">目</label>
+    <input id="moku" type="text">
+  </div>
+
+  <div class="field">
+    <label for="setsu">節</label>
+    <input id="setsu" type="text">
+  </div>
+
+  <div class="field">
+    <label for="seiriNo">整理番号</label>
+    <input
+      id="seiriNo"
+      type="text"
+      placeholder="例：1"
+      inputmode="numeric"
+      pattern="[1-9][0-9]*"
+      maxlength="6"
+      required
+    >
+  </div>
+</div>
+
+  
 
       <div class="title-row">
         <div class="field">
@@ -121,22 +121,7 @@
 </div>
     </div>
 
-    <!-- 収入 -->
-    <div id="form_shuunyuu" style="display:none;">
-      <div class="triple">
-        <div class="field">
-          <label for="r_kou">項</label>
-          <input id="r_kou" type="text">
-        </div>
-        <div class="field">
-          <label for="r_moku">目</label>
-          <input id="r_moku" type="text">
-        </div>
-        <div class="field">
-          <label for="r_setsu">節</label>
-          <input id="r_setsu" type="text">
-        </div>
-      </div>
+ 
 
       <div class="title-row">
         <div class="field">
