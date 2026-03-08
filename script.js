@@ -52,6 +52,11 @@ function syncCommonToHiddenFields() {
 // ================================
 function applyTypeUI() {
   const t = $("type")?.value || "";
+  const after = $("afterTypeFields");
+
+  if (after) {
+    after.style.display = t ? "" : "none";
+  }
 
   if ($("form_shishutsu")) {
     $("form_shishutsu").style.display = (t === "shishutsu") ? "" : "none";
