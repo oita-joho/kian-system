@@ -198,9 +198,9 @@ async function buildPayload(){
     payload.title = v("s_title");
     payload.writer = v("s_writer");
     payload.content = v("s_content");
-    payload.kou = v("s_kou");
-    payload.moku = v("s_moku");
-    payload.setsu = v("s_setsu");
+    payload.kou = v("kou");
+    payload.moku = v("moku");
+    payload.setsu = v("setsu");
     payload.amount = v("s_amount");
     payload.payee = v("s_payee");
     payload.method = $("s_method").value || "";
@@ -211,9 +211,9 @@ async function buildPayload(){
     payload.title = v("r_title");
     payload.writer = v("r_writer");
     payload.content = v("r_content");
-    payload.kou = v("r_kou");
-    payload.moku = v("r_moku");
-    payload.setsu = v("r_setsu");
+    payload.kou = v("kou");
+    payload.moku = v("moku");
+    payload.setsu = v("setsu");
     payload.amount = v("r_amount");
     payload.payer = v("r_payer");
     payload.method = $("r_method").value || "";
@@ -305,8 +305,8 @@ function clearForm(){
   if($("draftNo")) $("draftNo").value = "";
 
   [
-    "s_kou","s_moku","s_setsu","s_title","s_writer","s_content","s_amount","s_payee","s_date",
-    "r_kou","r_moku","r_setsu","r_title","r_writer","r_content","r_amount","r_payer","r_date",
+    "kou","moku","setsu","s_title","s_writer","s_content","s_amount","s_payee","s_date",
+    "kou","moku","setsu","r_title","r_writer","r_content","r_amount","r_payer","r_date",
     "g_title","g_writer","g_content"
   ].forEach(id=>{
     if($(id)) $(id).value = "";
@@ -340,9 +340,9 @@ function fillFormFromDraft_(d){
   applyTypeUI();
 
   if(d.type === "shishutsu"){
-    if($("s_kou")) $("s_kou").value = d.kou || "";
-    if($("s_moku")) $("s_moku").value = d.moku || "";
-    if($("s_setsu")) $("s_setsu").value = d.setsu || "";
+    if($("kou")) $("kou").value = d.kou || "";
+    if($("moku")) $("moku").value = d.moku || "";
+    if($("setsu")) $("setsu").value = d.setsu || "";
     if($("s_title")) $("s_title").value = d.title || "";
     if($("s_writer")) $("s_writer").value = d.writer || "";
     if($("s_content")) $("s_content").value = d.content || "";
@@ -353,9 +353,9 @@ function fillFormFromDraft_(d){
   }
 
   if(d.type === "shuunyuu"){
-    if($("r_kou")) $("r_kou").value = d.kou || "";
-    if($("r_moku")) $("r_moku").value = d.moku || "";
-    if($("r_setsu")) $("r_setsu").value = d.setsu || "";
+    if($("kou")) $("kou").value = d.kou || "";
+    if($("moku")) $("moku").value = d.moku || "";
+    if($("setsu")) $("setsu").value = d.setsu || "";
     if($("r_title")) $("r_title").value = d.title || "";
     if($("r_writer")) $("r_writer").value = d.writer || "";
     if($("r_content")) $("r_content").value = d.content || "";
