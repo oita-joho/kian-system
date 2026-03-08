@@ -4,11 +4,21 @@
 // 共通入力欄対応版
 // s_date / r_date → GASには date で送信
 // ================================
+
 const GAS_URL = "https://script.google.com/macros/s/AKfycbwdXfLyVByUKJQOey9gbq7_Ra2lvzUu6nDwIbX1HFIUfWNsI7Gp4IbsjKiPpe93j_bd7g/exec";
 
-function $(id){ return document.getElementById(id); }
-function v(id){ return ($(id)?.value || "").trim(); }
-function setStatus(msg){ $("status").textContent = msg || ""; }
+function $(id) {
+  return document.getElementById(id);
+}
+
+function v(id) {
+  return ($(id)?.value || "").trim();
+}
+
+function setStatus(msg) {
+  const el = $("status");
+  if (el) el.textContent = msg || "";
+}
 
 let selectedFiles = [];
 let draftItemsCache = [];
@@ -16,46 +26,54 @@ let draftItemsCache = [];
 // ================================
 // 共通欄 → hidden同期
 // ================================
-function syncCommonToHiddenFields(){
+function syncCommonToHiddenFields() {
   const type = $("type")?.value || "";
   const title = v("commonTitle");
   const writer = v("commonWriter");
   const content = v("commonContent");
 
-  if(type === "shishutsu"){
-    if($("s_title")) $("s_title").value = title;
-    if($("s_writer")) $("s_writer").value = writer;
-    if($("s_content")) $("s_content").value = content;
-  }else if(type === "shuunyuu"){
-    if($("r_title")) $("r_title").value = title;
-    if($("r_writer")) $("r_writer").value = writer;
-    if($("r_content")) $("r_content").value = content;
-  }else if(type === "ringi"){
-    if($("g_title")) $("g_title").value = title;
-    if($("g_writer")) $("g_writer").value = writer;
-    if($("g_content")) $("g_content").value = content;
+  if (type === "shishutsu") {
+    if ($("s_title")) $("s_title").value = title;
+    if ($("s_writer")) $("s_writer").value = writer;
+    if ($("s_content")) $("s_content").value = content;
+  } else if (type === "shuunyuu") {
+    if ($("r_title")) $("r_title").value = title;
+    if ($("r_writer")) $("r_writer").value = writer;
+    if ($("r_content")) $("r_content").value = content;
+  } else if (type === "ringi") {
+    if ($("g_title")) $("g_title").value = title;
+    if ($("g_writer")) $("g_writer").value = writer;
+    if ($("g_content")) $("g_content").value = content;
   }
 }
 
 // ================================
 // UI切替
 // ================================
-function applyTypeUI(){
+function applyTypeUI() {
   const t = $("type")?.value || "";
-  $("form_shishutsu").style.display = (t === "shishutsu") ? "" : "none";
-  $("form_shuunyuu").style.display  = (t === "shuunyuu")  ? "" : "none";
-  $("form_ringi").style.display     = (t === "ringi")     ? "" : "none";
+
+  if ($("form_shishutsu")) {
+    $("form_shishutsu").style.display = (t === "shishutsu") ? "" : "none";
+  }
+  if ($("form_shuunyuu")) {
+    $("form_shuunyuu").style.display = (t === "shuunyuu") ? "" : "none";
+  }
+  if ($("form_ringi")) {
+    $("form_ringi").style.display = (t === "ringi") ? "" : "none";
+  }
+
   syncCommonToHiddenFields();
 }
 
 // ================================
 // 整理番号ルール
 // ================================
-function bindSeiriNoRule(){
+function bindSeiriNoRule() {
   const seiri = $("seiriNo");
-  if(!seiri) return;
+  if (!seiri) return;
 
-  seiri.addEventListener("input", function(){
+  seiri.addEventListener("input", function () {
     this.value = this.value.replace(/[^0-9]/g, "");
     this.value = this.value.replace(/^0+/, "");
   });
@@ -64,7 +82,7 @@ function bindSeiriNoRule(){
 // ================================
 // 表示用
 // ================================
-function escapeHtml_(s){
+function escapeHtml_(s) {
   return String(s ?? "")
     .replace(/&/g, "&amp;")
     .replace(/</g, "&lt;")
@@ -72,26 +90,27 @@ function escapeHtml_(s){
     .replace(/"/g, "&quot;");
 }
 
-function typeLabelJa_(t){
-  if(t === "shishutsu") return "支出";
-  if(t === "shuunyuu") return "収入";
+function typeLabelJa_(t) {
+  if (t === "shishutsu") return "支出";
+  if (t === "shuunyuu") return "収入";
   return "稟議";
 }
 
 // ================================
 // API
 // ================================
-async function api_(payload){
+async function api_(payload) {
   const res = await fetch(GAS_URL, {
     method: "POST",
-    headers: { "Content-Type":"text/plain;charset=utf-8" },
+    headers: { "Content-Type": "text/plain;charset=utf-8" },
     body: JSON.stringify(payload)
   });
 
   const text = await res.text();
-  try{
+
+  try {
     return JSON.parse(text);
-  }catch{
+  } catch {
     throw new Error("GASの応答がJSONではありません: " + text);
   }
 }
@@ -99,46 +118,48 @@ async function api_(payload){
 // ================================
 // バリデーション
 // ================================
-function validate(payload){
-  if(!payload.type) return "未入力：区分";
-  if(!payload.seiriNo) return "未入力：整理番号";
-  if(!/^[1-9][0-9]*$/.test(payload.seiriNo)){
+function validate(payload) {
+  if (!payload.type) return "未入力：区分";
+  if (!payload.seiriNo) return "未入力：整理番号";
+
+  if (!/^[1-9][0-9]*$/.test(payload.seiriNo)) {
     return "整理番号は1以上の半角数字です（先頭0不可）";
   }
 
-  if(!payload.title) return "未入力：件名";
-  if(!payload.writer) return "未入力：記載者氏名";
-  if(!payload.content) return "未入力：内容";
+  if (!payload.title) return "未入力：件名";
+  if (!payload.writer) return "未入力：記載者氏名";
+  if (!payload.content) return "未入力：内容";
 
-  if(payload.type === "shishutsu"){
-    if(!payload.amount) return "未入力：支出金額";
-    if(!payload.payee) return "未入力：支払先";
-  } else if(payload.type === "shuunyuu"){
-    if(!payload.amount) return "未入力：収入金額";
-    if(!payload.payer) return "未入力：納入者";
+  if (payload.type === "shishutsu") {
+    if (!payload.amount) return "未入力：支出金額";
+    if (!payload.payee) return "未入力：支払先";
+  } else if (payload.type === "shuunyuu") {
+    if (!payload.amount) return "未入力：収入金額";
+    if (!payload.payer) return "未入力：納入者";
   }
 
-  if(payload.attachments.length > 5) return "添付は5件までです";
+  if (payload.attachments.length > 5) return "添付は5件までです";
+
   return "";
 }
 
 // ================================
 // 添付ファイル
 // ================================
-function readFileAsDataURL(file){
-  return new Promise((resolve, reject)=>{
+function readFileAsDataURL(file) {
+  return new Promise((resolve, reject) => {
     const r = new FileReader();
-    r.onload = ()=> resolve(r.result);
+    r.onload = () => resolve(r.result);
     r.onerror = reject;
     r.readAsDataURL(file);
   });
 }
 
-function renderSelectedFiles(){
+function renderSelectedFiles() {
   const box = $("fileList");
-  if(!box) return;
+  if (!box) return;
 
-  if(selectedFiles.length === 0){
+  if (selectedFiles.length === 0) {
     box.innerHTML = "";
     return;
   }
@@ -153,23 +174,23 @@ function renderSelectedFiles(){
   `).join("");
 }
 
-function removeSelectedFile(index){
+function removeSelectedFile(index) {
   selectedFiles.splice(index, 1);
   renderSelectedFiles();
   setStatus(`添付を削除しました（${selectedFiles.length}件）`);
 }
 window.removeSelectedFile = removeSelectedFile;
 
-function addSelectedFile(){
+function addSelectedFile() {
   const input = $("fileOne");
   const file = input?.files?.[0];
 
-  if(!file){
+  if (!file) {
     setStatus("追加するファイルを選んでください。");
     return;
   }
 
-  if(selectedFiles.length >= 5){
+  if (selectedFiles.length >= 5) {
     setStatus("添付は最大5件です。");
     input.value = "";
     return;
@@ -181,7 +202,7 @@ function addSelectedFile(){
     f.lastModified === file.lastModified
   );
 
-  if(duplicated){
+  if (duplicated) {
     setStatus("同じファイルは追加済みです。");
     input.value = "";
     return;
@@ -193,67 +214,51 @@ function addSelectedFile(){
   setStatus(`添付を追加しました（${selectedFiles.length}件）`);
 }
 
-function clearSelectedFiles(){
+function clearSelectedFiles() {
   selectedFiles = [];
-  if($("fileOne")) $("fileOne").value = "";
+  if ($("fileOne")) $("fileOne").value = "";
   renderSelectedFiles();
   setStatus("添付を全削除しました。");
 }
 
 // ================================
-// payload
+// payload作成
 // ================================
-async function buildPayload(){
+async function buildPayload() {
   syncCommonToHiddenFields();
 
-  const type = $("type").value;
+  const type = $("type")?.value || "";
   const seiriNo = v("seiriNo");
 
   const payload = {
     action: "submit",
     type,
     seiriNo,
-    label: $("type").selectedOptions[0]?.text || "",
+    label: $("type")?.selectedOptions?.[0]?.text || "",
+    kou: v("kou"),
+    moku: v("moku"),
+    setsu: v("setsu"),
+    title: v("commonTitle"),
+    writer: v("commonWriter"),
+    content: v("commonContent"),
     attachments: []
   };
 
-  if(type === "shishutsu"){
-    payload.title = v("commonTitle");
-    payload.writer = v("commonWriter");
-    payload.content = v("commonContent");
-    payload.kou = v("kou");
-    payload.moku = v("moku");
-    payload.setsu = v("setsu");
+  if (type === "shishutsu") {
     payload.amount = v("s_amount");
     payload.payee = v("s_payee");
-    payload.method = $("s_method").value || "";
+    payload.method = $("s_method")?.value || "";
     payload.date = v("s_date");
-  }
-
-  if(type === "shuunyuu"){
-    payload.title = v("commonTitle");
-    payload.writer = v("commonWriter");
-    payload.content = v("commonContent");
-    payload.kou = v("kou");
-    payload.moku = v("moku");
-    payload.setsu = v("setsu");
+  } else if (type === "shuunyuu") {
     payload.amount = v("r_amount");
     payload.payer = v("r_payer");
-    payload.method = $("r_method").value || "";
+    payload.method = $("r_method")?.value || "";
     payload.date = v("r_date");
-  }
-
-  if(type === "ringi"){
-    payload.title = v("commonTitle");
-    payload.writer = v("commonWriter");
-    payload.content = v("commonContent");
-    payload.kou = v("kou");
-    payload.moku = v("moku");
-    payload.setsu = v("setsu");
+  } else if (type === "ringi") {
     payload.date = "";
   }
 
-  if(selectedFiles.length > 5){
+  if (selectedFiles.length > 5) {
     throw new Error("添付は5件までです");
   }
 
@@ -272,25 +277,26 @@ async function buildPayload(){
 // ================================
 // 送信
 // ================================
-function setSending(flag){
-  $("sendBtn").disabled = !!flag;
+function setSending(flag) {
+  if ($("sendBtn")) $("sendBtn").disabled = !!flag;
 }
 
-async function send(){
+async function send() {
   setSending(true);
   setStatus("送信中…");
 
-  try{
+  try {
     const payload = await buildPayload();
     const msg = validate(payload);
-    if(msg){
+
+    if (msg) {
       setStatus(msg);
       return;
     }
 
     const data = await api_(payload);
 
-    if(!data.ok){
+    if (!data.ok) {
       setStatus("失敗: " + (data.message || "unknown"));
       return;
     }
@@ -302,21 +308,23 @@ async function send(){
     );
 
     const no = draftNo_();
-    if(no){
-      try{
+    if (no) {
+      try {
         await api_({
           action: "deleteDraft",
           draftNo: no
         });
-      }catch(e){}
+      } catch (e) {
+        console.warn(e);
+      }
     }
 
     clearForm();
     await loadDraftsFromSheet();
 
-  }catch(err){
+  } catch (err) {
     setStatus("通信エラー: " + err);
-  }finally{
+  } finally {
     setSending(false);
   }
 }
@@ -324,84 +332,82 @@ async function send(){
 // ================================
 // クリア
 // ================================
-function clearForm(){
-  if($("type")) $("type").value = "";
-  if($("seiriNo")) $("seiriNo").value = "";
-  if($("draftNo")) $("draftNo").value = "";
-  if($("kou")) $("kou").value = "";
-  if($("moku")) $("moku").value = "";
-  if($("setsu")) $("setsu").value = "";
-  if($("commonTitle")) $("commonTitle").value = "";
-  if($("commonWriter")) $("commonWriter").value = "";
-  if($("commonContent")) $("commonContent").value = "";
+function clearForm() {
+  if ($("type")) $("type").value = "";
+  if ($("seiriNo")) $("seiriNo").value = "";
+  if ($("draftNo")) $("draftNo").value = "";
+  if ($("kou")) $("kou").value = "";
+  if ($("moku")) $("moku").value = "";
+  if ($("setsu")) $("setsu").value = "";
+  if ($("commonTitle")) $("commonTitle").value = "";
+  if ($("commonWriter")) $("commonWriter").value = "";
+  if ($("commonContent")) $("commonContent").value = "";
 
   [
-    "s_title","s_writer","s_content","s_amount","s_payee","s_date",
-    "r_title","r_writer","r_content","r_amount","r_payer","r_date",
-    "g_title","g_writer","g_content"
-  ].forEach(id=>{
-    if($(id)) $(id).value = "";
+    "s_title", "s_writer", "s_content", "s_amount", "s_payee", "s_date",
+    "r_title", "r_writer", "r_content", "r_amount", "r_payer", "r_date",
+    "g_title", "g_writer", "g_content"
+  ].forEach(id => {
+    if ($(id)) $(id).value = "";
   });
 
-  if($("s_method")) $("s_method").value = "口座振込";
-  if($("r_method")) $("r_method").value = "口座振込";
+  if ($("s_method")) $("s_method").value = "口座振込";
+  if ($("r_method")) $("r_method").value = "口座振込";
 
-  selectedFiles = [];
-  if($("fileOne")) $("fileOne").value = "";
-  renderSelectedFiles();
-
+  clearSelectedFiles();
   applyTypeUI();
 }
 
 // ================================
 // 下書き
 // ================================
-function draftNo_(){
+function draftNo_() {
   return v("draftNo");
 }
 
-function fillFormFromDraft_(d){
-  if(!d) return;
+function fillFormFromDraft_(d) {
+  if (!d) return;
 
   clearForm();
 
-  if($("draftNo")) $("draftNo").value = d.draftNo || "";
-  if($("seiriNo")) $("seiriNo").value = d.seiriNo || "";
-  if($("type")) $("type").value = d.type || "";
-  if($("kou")) $("kou").value = d.kou || "";
-  if($("moku")) $("moku").value = d.moku || "";
-  if($("setsu")) $("setsu").value = d.setsu || "";
-  if($("commonTitle")) $("commonTitle").value = d.title || "";
-  if($("commonWriter")) $("commonWriter").value = d.writer || "";
-  if($("commonContent")) $("commonContent").value = d.content || "";
+  if ($("draftNo")) $("draftNo").value = d.draftNo || "";
+  if ($("seiriNo")) $("seiriNo").value = d.seiriNo || "";
+  if ($("type")) $("type").value = d.type || "";
+  if ($("kou")) $("kou").value = d.kou || "";
+  if ($("moku")) $("moku").value = d.moku || "";
+  if ($("setsu")) $("setsu").value = d.setsu || "";
+  if ($("commonTitle")) $("commonTitle").value = d.title || "";
+  if ($("commonWriter")) $("commonWriter").value = d.writer || "";
+  if ($("commonContent")) $("commonContent").value = d.content || "";
 
   applyTypeUI();
 
-  if(d.type === "shishutsu"){
-    if($("s_amount")) $("s_amount").value = d.amount || "";
-    if($("s_payee")) $("s_payee").value = d.payee || "";
-    if($("s_method")) $("s_method").value = d.method || "口座振込";
-    if($("s_date")) $("s_date").value = d.date || "";
+  if (d.type === "shishutsu") {
+    if ($("s_amount")) $("s_amount").value = d.amount || "";
+    if ($("s_payee")) $("s_payee").value = d.payee || "";
+    if ($("s_method")) $("s_method").value = d.method || "口座振込";
+    if ($("s_date")) $("s_date").value = d.date || "";
   }
 
-  if(d.type === "shuunyuu"){
-    if($("r_amount")) $("r_amount").value = d.amount || "";
-    if($("r_payer")) $("r_payer").value = d.payer || "";
-    if($("r_method")) $("r_method").value = d.method || "口座振込";
-    if($("r_date")) $("r_date").value = d.date || "";
+  if (d.type === "shuunyuu") {
+    if ($("r_amount")) $("r_amount").value = d.amount || "";
+    if ($("r_payer")) $("r_payer").value = d.payer || "";
+    if ($("r_method")) $("r_method").value = d.method || "口座振込";
+    if ($("r_date")) $("r_date").value = d.date || "";
   }
 
   setStatus(`下書きを復元しました（番号：${d.draftNo || ""}）`);
 }
 
-async function saveDraftByNo(){
+async function saveDraftByNo() {
   const no = draftNo_();
-  if(!no){
+
+  if (!no) {
     setStatus("下書き番号を入力してください。");
     return;
   }
 
-  try{
+  try {
     const payload = await buildPayload();
     payload.action = "saveDraft";
     payload.draftNo = no;
@@ -409,14 +415,15 @@ async function saveDraftByNo(){
 
     const data = await api_(payload);
 
-    if(!data.ok){
+    if (!data.ok) {
       setStatus("下書き保存失敗: " + (data.message || "unknown"));
       return;
     }
 
     setStatus(`下書きを保存しました（番号：${no}）`);
     await loadDraftsFromSheet();
-  }catch(err){
+
+  } catch (err) {
     setStatus("下書き保存エラー: " + err);
   }
 }
@@ -424,13 +431,13 @@ async function saveDraftByNo(){
 // ================================
 // 下書き一覧
 // ================================
-function renderDraftsFromSheet(items){
+function renderDraftsFromSheet(items) {
   const box = $("draftSheetList");
-  if(!box) return;
+  if (!box) return;
 
   draftItemsCache = Array.isArray(items) ? items : [];
 
-  if(draftItemsCache.length === 0){
+  if (draftItemsCache.length === 0) {
     box.innerHTML = "（下書きはありません）";
     return;
   }
@@ -446,7 +453,7 @@ function renderDraftsFromSheet(items){
         <div></div>
       </div>
 
-      ${draftItemsCache.map((d,i)=>`
+      ${draftItemsCache.map((d, i) => `
         <div class="draftRow">
           <div>${escapeHtml_(d.draftNo || "")}</div>
           <div>${escapeHtml_(d.typeLabel || typeLabelJa_(d.type))}</div>
@@ -463,54 +470,56 @@ function renderDraftsFromSheet(items){
   `;
 }
 
-async function loadDraftsFromSheet(){
+async function loadDraftsFromSheet() {
   const box = $("draftSheetList");
-  if(box) box.textContent = "読み込み中...";
+  if (box) box.textContent = "読み込み中...";
 
-  try{
+  try {
     const data = await api_({
       action: "listDrafts"
     });
 
-    if(!data.ok){
-      if(box) box.textContent = "読み込み失敗";
+    if (!data.ok) {
+      if (box) box.textContent = "読み込み失敗";
       return;
     }
 
     renderDraftsFromSheet(data.items || []);
-  }catch(err){
-    if(box) box.textContent = "読み込み失敗";
+
+  } catch (err) {
+    if (box) box.textContent = "読み込み失敗";
     console.error(err);
   }
 }
 
-function restoreDraftFromList(index){
+function restoreDraftFromList(index) {
   const item = draftItemsCache[index];
-  if(!item) return;
+  if (!item) return;
   fillFormFromDraft_(item);
 }
 window.restoreDraftFromList = restoreDraftFromList;
 
-async function deleteDraftFromList(index){
+async function deleteDraftFromList(index) {
   const item = draftItemsCache[index];
-  if(!item) return;
+  if (!item) return;
 
-  if(!confirm(`下書き（番号：${item.draftNo}）を削除しますか？`)) return;
+  if (!confirm(`下書き（番号：${item.draftNo}）を削除しますか？`)) return;
 
-  try{
+  try {
     const data = await api_({
       action: "deleteDraft",
       draftNo: item.draftNo
     });
 
-    if(!data.ok){
+    if (!data.ok) {
       setStatus("下書き削除失敗: " + (data.message || "unknown"));
       return;
     }
 
     setStatus(`下書きを削除しました（番号：${item.draftNo}）`);
     await loadDraftsFromSheet();
-  }catch(err){
+
+  } catch (err) {
     setStatus("下書き削除エラー: " + err);
   }
 }
@@ -519,23 +528,23 @@ window.deleteDraftFromList = deleteDraftFromList;
 // ================================
 // 初期化
 // ================================
-window.addEventListener("load", async ()=>{
+window.addEventListener("load", async () => {
   applyTypeUI();
   bindSeiriNoRule();
   renderSelectedFiles();
 
-  if($("type")) $("type").addEventListener("change", applyTypeUI);
-  if($("sendBtn")) $("sendBtn").addEventListener("click", send);
-  if($("clearBtn")) $("clearBtn").addEventListener("click", clearForm);
+  if ($("type")) $("type").addEventListener("change", applyTypeUI);
+  if ($("sendBtn")) $("sendBtn").addEventListener("click", send);
+  if ($("clearBtn")) $("clearBtn").addEventListener("click", clearForm);
 
-  if($("saveDraftBtn")) $("saveDraftBtn").addEventListener("click", saveDraftByNo);
-  if($("listDraftBtn")) $("listDraftBtn").addEventListener("click", loadDraftsFromSheet);
+  if ($("saveDraftBtn")) $("saveDraftBtn").addEventListener("click", saveDraftByNo);
+  if ($("listDraftBtn")) $("listDraftBtn").addEventListener("click", loadDraftsFromSheet);
 
-  if($("addFileBtn")) $("addFileBtn").addEventListener("click", addSelectedFile);
-  if($("clearFilesBtn")) $("clearFilesBtn").addEventListener("click", clearSelectedFiles);
+  if ($("addFileBtn")) $("addFileBtn").addEventListener("click", addSelectedFile);
+  if ($("clearFilesBtn")) $("clearFilesBtn").addEventListener("click", clearSelectedFiles);
 
-  ["commonTitle","commonWriter","commonContent"].forEach(id=>{
-    if($(id)) $(id).addEventListener("input", syncCommonToHiddenFields);
+  ["commonTitle", "commonWriter", "commonContent"].forEach(id => {
+    if ($(id)) $(id).addEventListener("input", syncCommonToHiddenFields);
   });
 
   await loadDraftsFromSheet();
