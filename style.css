@@ -26,27 +26,28 @@ body {
   display: flex;
   align-items: center;
   gap: 14px;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
   margin-bottom: 12px;
 }
 
 .draft-no {
-  width: 180px;
-  height: 56px;
-  padding: 0 16px;
+  width: 120px;
+  min-width: 120px;
+  height: 52px;
+  padding: 0 14px;
   border: 1px solid #c7ced8;
-  border-radius: 18px;
+  border-radius: 16px;
   background: #ffffff;
   font-size: 16px;
   color: #14213d;
 }
 
 .btn {
-  height: 56px;
+  height: 52px;
   min-width: 150px;
   padding: 0 24px;
   border: none;
-  border-radius: 18px;
+  border-radius: 16px;
   font-size: 16px;
   font-weight: 700;
   cursor: pointer;
@@ -154,38 +155,29 @@ body {
   color: #fff;
 }
 
-/* 線 */
 .section-line {
   border: none;
   border-top: 1px solid #d7dce3;
   margin: 20px 0 22px;
 }
 
-/* 入力エリア */
+/* フォーム */
 .form-row {
   display: grid;
   gap: 16px;
   margin-bottom: 18px;
 }
 
-.form-row-5 {
-  grid-template-columns: 2.2fr 1fr 1fr 1fr 1.4fr;
+.form-row-1 {
+  grid-template-columns: 1fr;
 }
 
 .form-row-4 {
   grid-template-columns: 1fr 1fr 1fr 1fr;
 }
 
-.form-row-2 {
-  grid-template-columns: 1fr 1fr;
-}
-
-.form-row-5 select,
-.form-row-5 input,
-.form-row-4 select,
-.form-row-4 input,
-.form-row-2 input {
-  width: 100%;
+.form-row-6 {
+  grid-template-columns: 1fr 1fr 1fr 1fr 1.4fr 1.4fr;
 }
 
 .field {
@@ -220,7 +212,7 @@ input[type="text"],
 input[type="number"],
 input[type="date"],
 select {
-  height: 58px;
+  height: 56px;
 }
 
 textarea {
@@ -329,18 +321,19 @@ textarea.error {
   color: #5d6a7d;
 }
 
-/* レスポンシブ */
+@media (max-width: 1400px) {
+  .form-row-6 {
+    grid-template-columns: 1fr 1fr 1fr;
+  }
+}
+
 @media (max-width: 1200px) {
   .draftHead,
   .draftRow {
     grid-template-columns: 80px 140px 110px 1fr 180px 130px;
   }
-}
 
-@media (max-width: 1100px) {
-  .form-row-5,
-  .form-row-4,
-  .form-row-2 {
+  .form-row-4 {
     grid-template-columns: 1fr 1fr;
   }
 }
@@ -351,78 +344,26 @@ textarea.error {
     padding-top: 14px;
   }
 
- .draft-toolbar {
-  display: flex;
-  align-items: center;
-  gap: 14px;
-  flex-wrap: wrap;
-  margin-bottom: 12px;
-}
+  .draft-toolbar {
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: center;
+  }
 
-.draft-no {
-  width: 120px;
-  height: 52px;
-  padding: 0 14px;
-  border: 1px solid #c7ced8;
-  border-radius: 16px;
-  background: #ffffff;
-  font-size: 16px;
-  color: #14213d;
-}
+  .draft-no {
+    width: 110px;
+    min-width: 110px;
+  }
 
-.form-row {
-  display: grid;
-  gap: 16px;
-  margin-bottom: 18px;
-}
+  .btn {
+    min-width: 130px;
+    padding: 0 16px;
+  }
 
-.form-row-1 {
-  grid-template-columns: 1fr;
-}
-
-.form-row-6 {
-  grid-template-columns: 1fr 1fr 1fr 1fr 1.4fr 1.4fr;
-}
-
-.field {
-  display: flex;
-  flex-direction: column;
-  margin-bottom: 16px;
-}
-
-label {
-  font-size: 14px;
-  color: #5d6a7d;
-  margin-bottom: 8px;
-}
-
-input[type="text"],
-input[type="number"],
-input[type="date"],
-select,
-textarea,
-input[type="file"] {
-  width: 100%;
-  border: 1px solid #c7ced8;
-  border-radius: 18px;
-  background: #ffffff;
-  font-size: 16px;
-  color: #14213d;
-  padding: 14px 16px;
-  outline: none;
-}
-
-input[type="text"],
-input[type="number"],
-input[type="date"],
-select {
-  height: 56px;
-}
-
-textarea {
-  min-height: 140px;
-  resize: vertical;
-}
+  .form-row-6,
+  .form-row-4 {
+    grid-template-columns: 1fr;
+  }
 
   .draftHead {
     display: none;
