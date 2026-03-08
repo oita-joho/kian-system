@@ -19,6 +19,7 @@ function setStatus(msg) {
 
 let selectedFiles = [];
 let draftItemsCache = [];
+let pendingItemsCache = [];
 let returnedItemsCache = [];
 let approvedItemsCache = [];
 
@@ -349,7 +350,7 @@ async function send() {
     }
 
     clearForm();
-    await loadDraftsFromSheet();
+    await loadAllStatusLists();
 
   } catch (err) {
     setStatus("通信エラー: " + err);
@@ -389,12 +390,15 @@ function clearForm() {
 }
 
 // ================================
-// 下書き
+// 下書き番号
 // ================================
 function draftNo_() {
   return v("draftNo");
 }
 
+// ================================
+// 復元
+// ================================
 function fillFormFromDraft_(d) {
   if (!d) return;
 
@@ -427,9 +431,12 @@ function fillFormFromDraft_(d) {
   }
 
   showReturnComments(d);
-  setStatus(`下書きを復元しました（番号：${d.draftNo || ""}）`);
+  setStatus(`復元しました（番号：${d.draftNo || d.kianId || ""}）`);
 }
 
+// ================================
+// 下書き保存
+// ================================
 async function saveDraftByNo() {
   const no = draftNo_();
 
@@ -452,7 +459,7 @@ async function saveDraftByNo() {
     }
 
     setStatus(`下書きを保存しました（番号：${no}）`);
-    await loadDraftsFromSheet();
+    await loadAllStatusLists();
 
   } catch (err) {
     setStatus("下書き保存エラー: " + err);
@@ -460,7 +467,7 @@ async function saveDraftByNo() {
 }
 
 // ================================
-// 状態別一覧
+// 状態別一覧描画
 // ================================
 function renderStatusTable(listId, items, mode) {
   const box = $(listId);
@@ -491,9 +498,9 @@ function renderStatusTable(listId, items, mode) {
           <div>${escapeHtml_(d.updatedAt || d.createdAt || "")}</div>
           <div class="draftBtns">
             ${
-              mode === "approved"
-                ? ""
-                : `<button class="miniBtn miniPrimary" onclick="restoreItemByStatus('${mode}', ${i})">復元</button>`
+              mode === "draft" || mode === "returned"
+                ? `<button class="miniBtn miniPrimary" onclick="restoreItemByStatus('${mode}', ${i})">復元</button>`
+                : ""
             }
             ${
               mode === "draft"
@@ -507,47 +514,52 @@ function renderStatusTable(listId, items, mode) {
   `;
 }
 
-async function loadDraftsFromSheet() {
+// ================================
+// 一括取得
+// ================================
+async function loadAllStatusLists() {
   const draftBox = $("draftSheetList");
+  const pendingBox = $("pendingSheetList");
   const returnedBox = $("returnedSheetList");
   const approvedBox = $("approvedSheetList");
 
   if (draftBox) draftBox.textContent = "読み込み中...";
+  if (pendingBox) pendingBox.textContent = "読み込み中...";
   if (returnedBox) returnedBox.textContent = "読み込み中...";
   if (approvedBox) approvedBox.textContent = "読み込み中...";
 
   try {
-    const data = await api_({
-      action: "listAllStatuses"
-    });
+    const data = await api_({ action: "listAllStatuses" });
 
     if (!data.ok) {
-      if (draftBox) draftBox.textContent = "読み込み失敗";
-      if (returnedBox) returnedBox.textContent = "読み込み失敗";
-      if (approvedBox) approvedBox.textContent = "読み込み失敗";
+      setStatus("一覧の取得に失敗しました");
       return;
     }
 
     draftItemsCache = data.draftItems || [];
+    pendingItemsCache = data.pendingItems || [];
     returnedItemsCache = data.returnedItems || [];
     approvedItemsCache = data.approvedItems || [];
 
     if ($("countDraft")) $("countDraft").textContent = draftItemsCache.length;
+    if ($("countPending")) $("countPending").textContent = pendingItemsCache.length;
     if ($("countReturned")) $("countReturned").textContent = returnedItemsCache.length;
     if ($("countApproved")) $("countApproved").textContent = approvedItemsCache.length;
 
     renderStatusTable("draftSheetList", draftItemsCache, "draft");
+    renderStatusTable("pendingSheetList", pendingItemsCache, "pending");
     renderStatusTable("returnedSheetList", returnedItemsCache, "returned");
     renderStatusTable("approvedSheetList", approvedItemsCache, "approved");
 
   } catch (err) {
-    if (draftBox) draftBox.textContent = "読み込み失敗";
-    if (returnedBox) returnedBox.textContent = "読み込み失敗";
-    if (approvedBox) approvedBox.textContent = "読み込み失敗";
     console.error(err);
+    setStatus("一覧の取得に失敗しました");
   }
 }
 
+// ================================
+// 復元・削除
+// ================================
 function restoreItemByStatus(mode, index) {
   let item = null;
 
@@ -577,12 +589,21 @@ async function deleteDraftByStatus(index) {
     }
 
     setStatus(`下書きを削除しました（番号：${item.draftNo}）`);
-    await loadDraftsFromSheet();
+    await loadAllStatusLists();
   } catch (err) {
     setStatus("下書き削除エラー: " + err);
   }
 }
 window.deleteDraftByStatus = deleteDraftByStatus;
+
+// ================================
+// 開閉
+// ================================
+function toggleBox(id) {
+  const box = $(id);
+  if (!box) return;
+  box.style.display = (box.style.display === "none") ? "" : "none";
+}
 
 // ================================
 // 初期化
@@ -591,40 +612,31 @@ window.addEventListener("load", async () => {
   applyTypeUI();
   bindSeiriNoRule();
   renderSelectedFiles();
+  showReturnComments(null);
 
   if ($("type")) $("type").addEventListener("change", applyTypeUI);
   if ($("sendBtn")) $("sendBtn").addEventListener("click", send);
   if ($("clearBtn")) $("clearBtn").addEventListener("click", clearForm);
-
   if ($("saveDraftBtn")) $("saveDraftBtn").addEventListener("click", saveDraftByNo);
-  if ($("listDraftBtn")) $("listDraftBtn").addEventListener("click", () => {
-    const box = $("draftListWrap");
-    if (!box) return;
-    box.style.display = (box.style.display === "none" ? "" : "none");
-  });
 
-  if ($("btnToggleDraftListSummary")) {
-    $("btnToggleDraftListSummary").addEventListener("click", () => {
-      const box = $("draftListWrap");
-      if (!box) return;
-      box.style.display = (box.style.display === "none" ? "" : "none");
-    });
+  if ($("listDraftBtn")) {
+    $("listDraftBtn").addEventListener("click", () => toggleBox("draftListWrap"));
+  }
+
+  if ($("btnToggleDraftList")) {
+    $("btnToggleDraftList").addEventListener("click", () => toggleBox("draftListWrap"));
+  }
+
+  if ($("btnTogglePendingList")) {
+    $("btnTogglePendingList").addEventListener("click", () => toggleBox("pendingListWrap"));
   }
 
   if ($("btnToggleReturnedList")) {
-    $("btnToggleReturnedList").addEventListener("click", () => {
-      const box = $("returnedListWrap");
-      if (!box) return;
-      box.style.display = (box.style.display === "none" ? "" : "none");
-    });
+    $("btnToggleReturnedList").addEventListener("click", () => toggleBox("returnedListWrap"));
   }
 
   if ($("btnToggleApprovedList")) {
-    $("btnToggleApprovedList").addEventListener("click", () => {
-      const box = $("approvedListWrap");
-      if (!box) return;
-      box.style.display = (box.style.display === "none" ? "" : "none");
-    });
+    $("btnToggleApprovedList").addEventListener("click", () => toggleBox("approvedListWrap"));
   }
 
   if ($("addFileBtn")) $("addFileBtn").addEventListener("click", addSelectedFile);
@@ -634,6 +646,5 @@ window.addEventListener("load", async () => {
     if ($(id)) $(id).addEventListener("input", syncCommonToHiddenFields);
   });
 
-  showReturnComments(null);
-  await loadDraftsFromSheet();
+  await loadAllStatusLists();
 });
