@@ -1,6 +1,7 @@
 // ================================
 // script.js
 // 下書き一覧表形式・復元・削除対応版
+// s_date / r_date → GASには date で送信
 // ================================
 const GAS_URL = "https://script.google.com/macros/s/AKfycby44eKCbAxF27mLyn54HAHfCE6FP04BAUdt7rt86LwZmCuMUsPT8dB8QroTBLNk35fw2A/exec";
 
@@ -183,7 +184,7 @@ function clearSelectedFiles(){
 // ================================
 async function buildPayload(){
   const type = $("type").value;
-  const seiriNo = $("seiriNo") ? $("seiriNo").value.trim() : "";
+  const seiriNo = v("seiriNo");
 
   const payload = {
     action: "submit",
@@ -203,7 +204,7 @@ async function buildPayload(){
     payload.amount = v("s_amount");
     payload.payee = v("s_payee");
     payload.method = $("s_method").value || "";
-    payload.date = v("s_date");
+    payload.date = v("s_date");   // 画面IDは s_date、送信名は date
   }
 
   if(type === "shuunyuu"){
@@ -216,13 +217,14 @@ async function buildPayload(){
     payload.amount = v("r_amount");
     payload.payer = v("r_payer");
     payload.method = $("r_method").value || "";
-    payload.date = v("r_date");
+    payload.date = v("r_date");   // 画面IDは r_date、送信名は date
   }
 
   if(type === "ringi"){
     payload.title = v("g_title");
     payload.writer = v("g_writer");
     payload.content = v("g_content");
+    payload.date = "";            // 稟議では未使用
   }
 
   if(selectedFiles.length > 5){
@@ -456,7 +458,6 @@ async function loadDraftsFromSheet(){
     }
 
     renderDraftsFromSheet(data.items || []);
-    setStatus("");
   }catch(err){
     if(box) box.textContent = "読み込み失敗";
     console.error(err);
