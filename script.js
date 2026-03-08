@@ -401,7 +401,7 @@ function fillFormFromDraft_(d) {
     if ($("r_method")) $("r_method").value = d.method || "口座振込";
     if ($("r_date")) $("r_date").value = d.date || "";
   }
-
+　showReturnComments(d);
   setStatus(`下書きを復元しました（番号：${d.draftNo || ""}）`);
 }
 
