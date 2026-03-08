@@ -12,7 +12,7 @@ body {
 .container {
   width: min(1460px, calc(100% - 32px));
   margin: 0 auto;
-  padding: 18px 0 28px;
+  padding: 18px 0 32px;
 }
 
 .page-title {
@@ -25,31 +25,36 @@ body {
 .draft-toolbar {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 14px;
   flex-wrap: wrap;
   margin-bottom: 12px;
 }
 
 .draft-no {
-  width: 126px;
-  height: 50px;
-  padding: 0 14px;
+  width: 180px;
+  height: 56px;
+  padding: 0 16px;
   border: 1px solid #c7ced8;
-  border-radius: 16px;
+  border-radius: 18px;
   background: #ffffff;
   font-size: 16px;
   color: #14213d;
 }
 
 .btn {
-  height: 52px;
-  min-width: 138px;
-  padding: 0 22px;
+  height: 56px;
+  min-width: 150px;
+  padding: 0 24px;
   border: none;
-  border-radius: 16px;
+  border-radius: 18px;
   font-size: 16px;
   font-weight: 700;
   cursor: pointer;
+  transition: opacity 0.2s ease;
+}
+
+.btn:hover {
+  opacity: 0.92;
 }
 
 .btn-primary {
@@ -68,23 +73,23 @@ body {
 }
 
 .draft-note {
-  margin: 0 0 20px;
+  margin: 0 0 22px;
   color: #5d6a7d;
   font-size: 14px;
-  line-height: 1.7;
+  line-height: 1.8;
 }
 
 /* 下書き一覧 */
 .draft-list-wrap {
-  margin-bottom: 24px;
-  padding: 16px;
+  margin-bottom: 28px;
+  padding: 20px;
   border: 1px solid #d7dce3;
-  border-radius: 22px;
+  border-radius: 24px;
   background: #f5f6f8;
 }
 
 .draft-list-wrap h3 {
-  margin: 0 0 12px;
+  margin: 0 0 14px;
   font-size: 18px;
 }
 
@@ -95,19 +100,19 @@ body {
 .draftTable {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 10px;
 }
 
 .draftHead,
 .draftRow {
   display: grid;
-  grid-template-columns: 80px 140px 120px 1fr 180px 180px;
+  grid-template-columns: 90px 170px 120px 1fr 210px 140px;
   gap: 12px;
   align-items: center;
 }
 
 .draftHead {
-  padding: 0 10px 8px;
+  padding: 0 12px 8px;
   color: #5d6a7d;
   font-weight: 700;
 }
@@ -115,8 +120,8 @@ body {
 .draftRow {
   background: #ffffff;
   border: 1px solid #e2e7ed;
-  border-radius: 16px;
-  padding: 10px 12px;
+  border-radius: 18px;
+  padding: 14px 14px;
 }
 
 .draftTitle {
@@ -125,14 +130,15 @@ body {
 
 .draftBtns {
   display: flex;
-  gap: 8px;
+  gap: 10px;
   justify-content: flex-start;
+  align-items: center;
 }
 
 .miniBtn {
   border: none;
-  border-radius: 10px;
-  padding: 8px 12px;
+  border-radius: 12px;
+  padding: 10px 14px;
   font-size: 14px;
   font-weight: 700;
   cursor: pointer;
@@ -152,18 +158,18 @@ body {
 .section-line {
   border: none;
   border-top: 1px solid #d7dce3;
-  margin: 18px 0 18px;
+  margin: 20px 0 22px;
 }
 
 /* 入力エリア */
 .form-row {
   display: grid;
-  gap: 14px;
-  margin-bottom: 16px;
+  gap: 16px;
+  margin-bottom: 18px;
 }
 
 .form-row-5 {
-  grid-template-columns: 2fr 1fr 1fr 1fr 1.2fr;
+  grid-template-columns: 2.2fr 1fr 1fr 1fr 1.4fr;
 }
 
 .form-row-4 {
@@ -172,6 +178,14 @@ body {
 
 .form-row-2 {
   grid-template-columns: 1fr 1fr;
+}
+
+.form-row-5 select,
+.form-row-5 input,
+.form-row-4 select,
+.form-row-4 input,
+.form-row-2 input {
+  width: 100%;
 }
 
 .field {
@@ -183,7 +197,7 @@ body {
 label {
   font-size: 14px;
   color: #5d6a7d;
-  margin-bottom: 6px;
+  margin-bottom: 8px;
 }
 
 input[type="text"],
@@ -194,7 +208,7 @@ textarea,
 input[type="file"] {
   width: 100%;
   border: 1px solid #c7ced8;
-  border-radius: 16px;
+  border-radius: 18px;
   background: #ffffff;
   font-size: 16px;
   color: #14213d;
@@ -206,11 +220,11 @@ input[type="text"],
 input[type="number"],
 input[type="date"],
 select {
-  height: 48px;
+  height: 58px;
 }
 
 textarea {
-  min-height: 120px;
+  min-height: 140px;
   resize: vertical;
 }
 
@@ -233,15 +247,15 @@ textarea.error {
 }
 
 .ringi-box {
-  padding: 14px 16px;
+  padding: 16px 18px;
   background: #ffffff;
   border: 1px solid #c7ced8;
-  border-radius: 16px;
-  margin-bottom: 16px;
+  border-radius: 18px;
+  margin-bottom: 18px;
 }
 
 .file-field {
-  margin-top: 8px;
+  margin-top: 10px;
 }
 
 .file-row {
@@ -249,7 +263,7 @@ textarea.error {
   gap: 10px;
   align-items: center;
   flex-wrap: wrap;
-  margin-top: 6px;
+  margin-top: 8px;
 }
 
 .addBtn,
@@ -259,7 +273,7 @@ textarea.error {
 .fileRemoveBtn.secondary {
   border: none;
   border-radius: 12px;
-  padding: 10px 16px;
+  padding: 11px 16px;
   font-size: 14px;
   cursor: pointer;
 }
@@ -307,7 +321,7 @@ textarea.error {
   align-items: center;
   gap: 12px;
   flex-wrap: wrap;
-  margin-top: 20px;
+  margin-top: 22px;
 }
 
 .status {
@@ -315,16 +329,19 @@ textarea.error {
   color: #5d6a7d;
 }
 
+/* レスポンシブ */
+@media (max-width: 1200px) {
+  .draftHead,
+  .draftRow {
+    grid-template-columns: 80px 140px 110px 1fr 180px 130px;
+  }
+}
+
 @media (max-width: 1100px) {
   .form-row-5,
   .form-row-4,
   .form-row-2 {
     grid-template-columns: 1fr 1fr;
-  }
-
-  .draftHead,
-  .draftRow {
-    grid-template-columns: 70px 110px 100px 1fr 150px 150px;
   }
 }
 
