@@ -360,6 +360,7 @@ function clearForm() {
   if ($("r_method")) $("r_method").value = "口座振込";
 
   clearSelectedFiles();
+  showReturnComments(null);
   applyTypeUI();
 }
 
