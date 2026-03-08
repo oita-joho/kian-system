@@ -2,7 +2,7 @@
 // script.js
 // 配置変更版
 // ================================
-const GAS_URL = "https://script.google.com/macros/s/AKfycbwdXfLyVByUKJQOey9gbq7_Ra2lvzUu6nDwIbX1HFIUfWNsI7Gp4IbsjKiPpe93j_bd7g/exec";
+const GAS_URL = "https://script.google.com/macros/s/AKfycbwe1LAz06J3hPuEwZLiPToZEbPB9XOfo6U_2xW6ahRmaQCU475lwsKA-gEtQj1yo_jmCw/exec";
 
 function $(id) {
   return document.getElementById(id);
