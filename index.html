@@ -12,8 +12,6 @@
 
     <!-- 下書きエリア -->
     <div class="draft-layout">
-
-      <!-- 左：下書き操作 -->
       <div class="draft-left">
         <div class="draft-tools">
           <input id="draftNo" type="text" placeholder="下書き番号">
@@ -26,171 +24,147 @@
         </div>
       </div>
 
-      <!-- 右：下書き一覧 -->
       <div class="draft-right">
         <div class="sheetDraftArea">
           <div class="sheetDraftTitle">下書き一覧</div>
           <div id="draftSheetList" class="sheetDraftList">読み込み中...</div>
         </div>
       </div>
-
     </div>
 
     <hr>
 
-    <!-- 区分＋整理番号 -->
-<div class="five-row">
-  <div class="field">
-    <label for="type">区分</label>
-    <select id="type" required>
-      <option value="">選択してください</option>
-      <option value="shishutsu">支出負担行為</option>
-      <option value="shuunyuu">収入行為</option>
-      <option value="ringi">稟議行為</option>
-    </select>
-  </div>
-
-  <div class="field">
-    <label for="kou">項</label>
-    <input id="kou" type="text">
-  </div>
-
-  <div class="field">
-    <label for="moku">目</label>
-    <input id="moku" type="text">
-  </div>
-
-  <div class="field">
-    <label for="setsu">節</label>
-    <input id="setsu" type="text">
-  </div>
-
-  <div class="field">
-    <label for="seiriNo">整理番号</label>
-    <input
-      id="seiriNo"
-      type="text"
-      placeholder="例：1"
-      inputmode="numeric"
-      pattern="[1-9][0-9]*"
-      maxlength="6"
-      required
-    >
-  </div>
-</div>
-
-  
-
-      <div class="title-row">
-        <div class="field">
-          <label for="s_title">件名</label>
-          <input id="s_title" type="text">
-        </div>
-        <div class="field">
-          <label for="s_writer">記載者氏名</label>
-          <input id="s_writer" type="text">
-        </div>
-      </div>
-
-      <label for="s_content">内容</label>
-      <textarea id="s_content" rows="4"></textarea>
-
-     <div class="quad">
-  <div class="field">
-    <label for="s_amount">支出金額</label>
-    <input id="s_amount" type="number">
-  </div>
-
-  <div class="field">
-    <label for="s_payee">支払先</label>
-    <input id="s_payee" type="text">
-  </div>
-
-  <div class="field">
-    <label for="s_method">支払方法</label>
-    <select id="s_method">
-      <option value="口座振込">口座振込</option>
-      <option value="現金">現金</option>
-    </select>
-  </div>
-
-  <div class="field">
-    <label for="s_date">支出年月日</label>
-    <input id="s_date" type="text" placeholder="例：2026/03/08">
-  </div>
-</div>
+    <!-- 最初に見せるのは区分だけ -->
+    <div class="field">
+      <label for="type">区分</label>
+      <select id="type" required>
+        <option value="">選択してください</option>
+        <option value="shishutsu">支出負担行為</option>
+        <option value="shuunyuu">収入行為</option>
+        <option value="ringi">稟議行為</option>
+      </select>
     </div>
 
- 
-
-      <div class="title-row">
-        <div class="field">
-          <label for="r_title">件名</label>
-          <input id="r_title" type="text">
-        </div>
-        <div class="field">
-          <label for="r_writer">記載者氏名</label>
-          <input id="r_writer" type="text">
-        </div>
+    <!-- 区分選択後に表示 -->
+    <div id="kouRow" class="five-row">
+      <div class="field">
+        <label for="kou">項</label>
+        <input id="kou" type="text">
       </div>
 
-      <label for="r_content">内容</label>
-      <textarea id="r_content" rows="4"></textarea>
+      <div class="field">
+        <label for="moku">目</label>
+        <input id="moku" type="text">
+      </div>
 
-   <div class="quad">
-  <div class="field">
-    <label for="r_amount">収入金額</label>
-    <input id="r_amount" type="number">
-  </div>
+      <div class="field">
+        <label for="setsu">節</label>
+        <input id="setsu" type="text">
+      </div>
 
-  <div class="field">
-    <label for="r_payer">納入者</label>
-    <input id="r_payer" type="text">
-  </div>
+      <div class="field">
+        <label for="seiriNo">整理番号</label>
+        <input
+          id="seiriNo"
+          type="text"
+          placeholder="例：1"
+          inputmode="numeric"
+          pattern="[1-9][0-9]*"
+          maxlength="6"
+          required
+        >
+      </div>
+    </div>
 
-  <div class="field">
-    <label for="r_method">受取方法</label>
-    <select id="r_method">
-      <option value="口座振込">口座振込</option>
-      <option value="現金">現金</option>
-    </select>
-  </div>
+    <div id="titleRowWrap" class="title-row">
+      <div class="field">
+        <label for="common_title">件名</label>
+        <input id="common_title" type="text">
+      </div>
 
-  <div class="field">
-    <label for="r_date">収納年月日</label>
-    <input id="r_date" type="text" placeholder="例：2026/03/08">
-  </div>
-</div>
+      <div class="field">
+        <label for="common_writer">記載者氏名</label>
+        <input id="common_writer" type="text">
+      </div>
+    </div>
+
+    <div id="contentWrap">
+      <label for="common_content">内容</label>
+      <textarea id="common_content" rows="4"></textarea>
+    </div>
+
+    <!-- 支出 -->
+    <div id="form_shishutsu" style="display:none;">
+      <div id="moneyRowShishutsu" class="quad">
+        <div class="field">
+          <label for="s_amount">支出金額</label>
+          <input id="s_amount" type="number">
+        </div>
+
+        <div class="field">
+          <label for="s_payee">支払先</label>
+          <input id="s_payee" type="text">
+        </div>
+
+        <div class="field">
+          <label for="s_method">支払方法</label>
+          <select id="s_method">
+            <option value="口座振込">口座振込</option>
+            <option value="現金">現金</option>
+          </select>
+        </div>
+
+        <div class="field">
+          <label for="s_date">支出年月日</label>
+          <input id="s_date" type="text" placeholder="例：2026/03/08">
+        </div>
+      </div>
+    </div>
+
+    <!-- 収入 -->
+    <div id="form_shuunyuu" style="display:none;">
+      <div id="moneyRowShuunyuu" class="quad">
+        <div class="field">
+          <label for="r_amount">収入金額</label>
+          <input id="r_amount" type="number">
+        </div>
+
+        <div class="field">
+          <label for="r_payer">納入者</label>
+          <input id="r_payer" type="text">
+        </div>
+
+        <div class="field">
+          <label for="r_method">受取方法</label>
+          <select id="r_method">
+            <option value="口座振込">口座振込</option>
+            <option value="現金">現金</option>
+          </select>
+        </div>
+
+        <div class="field">
+          <label for="r_date">収納年月日</label>
+          <input id="r_date" type="text" placeholder="例：2026/03/08">
+        </div>
+      </div>
     </div>
 
     <!-- 稟議 -->
     <div id="form_ringi" style="display:none;">
-      <div class="title-row">
-        <div class="field">
-          <label for="g_title">件名</label>
-          <input id="g_title" type="text">
-        </div>
-        <div class="field">
-          <label for="g_writer">記載者氏名</label>
-          <input id="g_writer" type="text">
-        </div>
+      <div id="ringiWrap"></div>
+    </div>
+
+    <div id="fileWrap">
+      <label for="fileOne">ファイル添付（最大5） / 1件ずつ追加</label>
+      <div class="file-row">
+        <input id="fileOne" type="file">
+        <button id="addFileBtn" type="button" class="addBtn">添付を追加</button>
+        <button id="clearFilesBtn" type="button" class="deleteBtn">添付を全削除</button>
       </div>
-
-      <label for="g_content">内容</label>
-      <textarea id="g_content" rows="5"></textarea>
+      <ul id="fileList" class="fileList"></ul>
     </div>
 
-    <!-- 添付 -->
-    <label for="fileOne">ファイル添付（最大5） / 1件ずつ追加</label>
-    <div class="file-row">
-      <input id="fileOne" type="file">
-      <button id="addFileBtn" type="button" class="addBtn">添付を追加</button>
-      <button id="clearFilesBtn" type="button" class="deleteBtn">添付を全削除</button>
-    </div>
-    <ul id="fileList" class="fileList"></ul>
-
-    <!-- 操作 -->
-    <div class="action-row">
+    <div id="actionWrap" class="action-row">
       <button id="sendBtn" type="button">送信</button>
       <button id="clearBtn" type="button" class="secondary">クリア</button>
       <div id="status" class="status"></div>
