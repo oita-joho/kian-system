@@ -27,58 +27,62 @@
       <div id="draftSheetList" class="draftSheetList">読み込み中...</div>
     </div>
 
-    <hr class="section-line">
+   <hr class="section-line">
 
-    <!-- 区分～整理番号 -->
-    <div class="form-row form-row-5">
-      <div class="field">
-        <label for="type">区分</label>
-        <select id="type">
-          <option value="">選択してください</option>
-          <option value="shishutsu">支出</option>
-          <option value="shuunyuu">収入</option>
-          <option value="ringi">稟議</option>
-        </select>
-      </div>
+<!-- 区分だけ -->
+<div class="form-row form-row-1">
+  <div class="field">
+    <label for="type">区分</label>
+    <select id="type">
+      <option value="">選択してください</option>
+      <option value="shishutsu">支出</option>
+      <option value="shuunyuu">収入</option>
+      <option value="ringi">稟議</option>
+    </select>
+  </div>
+</div>
 
-      <div class="field">
-        <label for="kou">項</label>
-        <input type="text" id="kou">
-      </div>
+<!-- 区分選択後に表示 -->
+<div id="afterTypeFields" style="display:none;">
 
-      <div class="field">
-        <label for="moku">目</label>
-        <input type="text" id="moku">
-      </div>
-
-      <div class="field">
-        <label for="setsu">節</label>
-        <input type="text" id="setsu">
-      </div>
-
-      <div class="field">
-        <label for="seiriNo">整理番号</label>
-        <input type="text" id="seiriNo" placeholder="例：1">
-      </div>
-    </div>
-
-    <!-- 共通 -->
-    <div class="form-row form-row-2">
-      <div class="field">
-        <label for="commonTitle">件名</label>
-        <input type="text" id="commonTitle">
-      </div>
-
-      <div class="field">
-        <label for="commonWriter">記載者氏名</label>
-        <input type="text" id="commonWriter">
-      </div>
+  <!-- 6項目を横1列 -->
+  <div class="form-row form-row-6">
+    <div class="field">
+      <label for="seiriNo">整理番号</label>
+      <input type="text" id="seiriNo" placeholder="例：1">
     </div>
 
     <div class="field">
-      <label for="commonContent">内容</label>
-      <textarea id="commonContent" rows="5"></textarea>
+      <label for="kou">項</label>
+      <input type="text" id="kou">
     </div>
+
+    <div class="field">
+      <label for="moku">目</label>
+      <input type="text" id="moku">
+    </div>
+
+    <div class="field">
+      <label for="setsu">節</label>
+      <input type="text" id="setsu">
+    </div>
+
+    <div class="field">
+      <label for="commonTitle">件名</label>
+      <input type="text" id="commonTitle">
+    </div>
+
+    <div class="field">
+      <label for="commonWriter">記載者氏名</label>
+      <input type="text" id="commonWriter">
+    </div>
+  </div>
+
+  <div class="field">
+    <label for="commonContent">内容</label>
+    <textarea id="commonContent" rows="5"></textarea>
+  </div>
+</div>
 
     <!-- 支出 -->
     <div id="form_shishutsu" style="display:none;">
