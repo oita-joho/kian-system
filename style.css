@@ -458,3 +458,52 @@ textarea.error {
     grid-template-columns: 1fr;
   }
 }
+.status-summary-wrap {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 16px;
+  margin-bottom: 22px;
+}
+
+.status-summary-card {
+  background: #ffffff;
+  border: 1px solid #d7dce3;
+  border-radius: 18px;
+  padding: 16px;
+}
+
+.status-summary-card.returned {
+  background: #fff7f7;
+  border-color: #efcaca;
+}
+
+.status-summary-card.approved {
+  background: #f7fbf7;
+  border-color: #cfe3cf;
+}
+
+.status-summary-title {
+  font-size: 14px;
+  color: #5d6a7d;
+  margin-bottom: 8px;
+  font-weight: 700;
+}
+
+.status-summary-count {
+  font-size: 28px;
+  font-weight: 700;
+  margin-bottom: 12px;
+  color: #14213d;
+}
+
+.summary-btn {
+  min-width: 120px;
+  height: 44px;
+  padding: 0 14px;
+}
+
+@media (max-width: 900px) {
+  .status-summary-wrap {
+    grid-template-columns: 1fr;
+  }
+}
