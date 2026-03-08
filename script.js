@@ -1,6 +1,6 @@
 // ================================
 // script.js
-// 起案画面 完成版
+// 起案画面 完成版　
 // ================================
 const GAS_URL = "https://script.google.com/macros/s/AKfycby_WG59PLtbsGK5IWDjHsiYJs8pzvEdpsgYViuAKWwj6uqm2u4yRjhVgEmNciBaAyhUjg/exec";
 
