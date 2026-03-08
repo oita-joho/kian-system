@@ -311,8 +311,8 @@ function clearForm(){
     if($(id)) $(id).value = "";
   });
 
-  if($("s_method")) $("s_method").value = "口座振込";
-  if($("r_method")) $("r_method").value = "口座振込";
+  if($("s_method")) $("s_method").value = "現金支払い";
+  if($("r_method")) $("r_method").value = "現金受け取り";
 
   selectedFiles = [];
   if($("fileOne")) $("fileOne").value = "";
