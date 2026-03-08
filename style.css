@@ -21,9 +21,7 @@ body {
   margin-bottom: 18px;
 }
 
-/* =========================
-   下書きエリア：左右2カラム
-========================= */
+/* 下書きエリア：左右2カラム */
 .draft-layout {
   display: grid;
   grid-template-columns: 340px 1fr;
@@ -35,9 +33,11 @@ body {
 .draft-left {
   min-width: 0;
 }
+
 .draft-right {
   min-width: 0;
 }
+
 .draft-toolbar {
   display: flex;
   align-items: center;
@@ -47,10 +47,10 @@ body {
 }
 
 .draft-no {
-  width: 50px;
-  min-width: 50px;
+  width: 70px;
+  min-width: 70px;
   height: 58px;
-  padding: 0 16px;
+  padding: 0 10px;
   border: 1px solid #c7ced8;
   border-radius: 18px;
   background: #ffffff;
@@ -97,16 +97,13 @@ body {
   line-height: 1.8;
 }
 
-.draft-right {
-  min-width: 0;
-}
-
-/* 下書き一覧 */
+/* 一覧 */
 .draft-list-wrap {
   padding: 20px;
   border: 1px solid #d7dce3;
   border-radius: 24px;
   background: #f5f6f8;
+  margin-bottom: 24px;
 }
 
 .draft-list-wrap h3 {
@@ -181,9 +178,97 @@ body {
   margin: 20px 0 22px;
 }
 
-/* =========================
-   フォーム
-========================= */
+/* 状態サマリー */
+.status-summary-wrap {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 16px;
+  margin-bottom: 22px;
+}
+
+.status-summary-card {
+  background: #ffffff;
+  border: 1px solid #d7dce3;
+  border-radius: 18px;
+  padding: 16px;
+}
+
+.status-summary-card.returned {
+  background: #fff7f7;
+  border-color: #efcaca;
+}
+
+.status-summary-card.approved {
+  background: #f7fbf7;
+  border-color: #cfe3cf;
+}
+
+.status-summary-title {
+  font-size: 14px;
+  color: #5d6a7d;
+  margin-bottom: 8px;
+  font-weight: 700;
+}
+
+.status-summary-count {
+  font-size: 28px;
+  font-weight: 700;
+  margin-bottom: 12px;
+  color: #14213d;
+}
+
+.summary-btn {
+  min-width: 120px;
+  height: 44px;
+  padding: 0 14px;
+}
+
+/* 差し戻し欄 */
+.return-box {
+  margin-bottom: 24px;
+  padding: 18px;
+  border: 1px solid #d7dce3;
+  border-radius: 20px;
+  background: #fff8f8;
+}
+
+.return-box h3 {
+  margin: 0 0 12px;
+  font-size: 18px;
+  font-weight: 700;
+  color: #8b1e1e;
+}
+
+.return-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+.return-col {
+  background: #ffffff;
+  border: 1px solid #e7caca;
+  border-radius: 16px;
+  padding: 14px;
+}
+
+.return-label {
+  margin-bottom: 8px;
+  font-size: 14px;
+  font-weight: 700;
+  color: #8b1e1e;
+}
+
+.return-comment {
+  white-space: pre-wrap;
+  word-break: break-word;
+  font-size: 14px;
+  line-height: 1.7;
+  color: #334155;
+  min-height: 72px;
+}
+
+/* フォーム */
 .form-row {
   display: grid;
   gap: 16px;
@@ -343,9 +428,7 @@ textarea.error {
   color: #5d6a7d;
 }
 
-/* =========================
-   レスポンシブ
-========================= */
+/* レスポンシブ */
 @media (max-width: 1400px) {
   .draft-layout {
     grid-template-columns: 1fr;
@@ -366,7 +449,14 @@ textarea.error {
     grid-template-columns: 1fr 1fr;
   }
 }
-@media (max-width: 900px)
+
+@media (max-width: 900px) {
+  .status-summary-wrap,
+  .return-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
 @media (max-width: 720px) {
   .container {
     width: calc(100% - 20px);
@@ -406,104 +496,5 @@ textarea.error {
   .file-row {
     flex-direction: column;
     align-items: stretch;
-  }
-}
-/* 差し戻し欄 */
-.return-box {
-  margin-bottom: 24px;
-  padding: 18px;
-  border: 1px solid #d7dce3;
-  border-radius: 20px;
-  background: #fff8f8;
-}
-
-.return-box h3 {
-  margin: 0 0 12px;
-  font-size: 18px;
-  font-weight: 700;
-  color: #8b1e1e;
-}
-
-.return-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 16px;
-}
-
-.return-col {
-  background: #ffffff;
-  border: 1px solid #e7caca;
-  border-radius: 16px;
-  padding: 14px;
-}
-
-.return-label {
-  margin-bottom: 8px;
-  font-size: 14px;
-  font-weight: 700;
-  color: #8b1e1e;
-}
-
-.return-comment {
-  white-space: pre-wrap;
-  word-break: break-word;
-  font-size: 14px;
-  line-height: 1.7;
-  color: #334155;
-  min-height: 72px;
-}
-
-@media (max-width: 800px) {
-  .return-grid {
-    grid-template-columns: 1fr;
-  }
-}
-.status-summary-wrap {
-  display: grid;
-  grid-template-columns: 1fr 1fr 1fr;
-  gap: 16px;
-  margin-bottom: 22px;
-}
-
-.status-summary-card {
-  background: #ffffff;
-  border: 1px solid #d7dce3;
-  border-radius: 18px;
-  padding: 16px;
-}
-
-.status-summary-card.returned {
-  background: #fff7f7;
-  border-color: #efcaca;
-}
-
-.status-summary-card.approved {
-  background: #f7fbf7;
-  border-color: #cfe3cf;
-}
-
-.status-summary-title {
-  font-size: 14px;
-  color: #5d6a7d;
-  margin-bottom: 8px;
-  font-weight: 700;
-}
-
-.status-summary-count {
-  font-size: 28px;
-  font-weight: 700;
-  margin-bottom: 12px;
-  color: #14213d;
-}
-
-.summary-btn {
-  min-width: 120px;
-  height: 44px;
-  padding: 0 14px;
-}
-
-@media (max-width: 900px) {
-  .status-summary-wrap {
-    grid-template-columns: 1fr;
   }
 }
