@@ -26,8 +26,8 @@ body {
 ========================= */
 .draft-layout {
   display: grid;
-  grid-template-columns: 420px 1fr;
-  gap: 24px;
+  grid-template-columns: 340px 1fr;
+  gap: 20px;
   align-items: start;
   margin-bottom: 22px;
 }
