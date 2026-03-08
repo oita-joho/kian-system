@@ -2,7 +2,7 @@
 // script.js
 // 下書き一覧表形式・復元・削除対応版
 // s_date / r_date → GASには date で送信
-// ================================
+// ===========
 const GAS_URL = "https://script.google.com/macros/s/AKfycbwdXfLyVByUKJQOey9gbq7_Ra2lvzUu6nDwIbX1HFIUfWNsI7Gp4IbsjKiPpe93j_bd7g/exec";
 
 function $(id){ return document.getElementById(id); }
@@ -256,6 +256,7 @@ async function send(){
 
   try{
     const payload = await buildPayload();
+    console.log(payload);
     const msg = validate(payload);
     if(msg){
       setStatus(msg);
