@@ -2,7 +2,7 @@
 // script.js
 // 下書き一覧表形式・復元・削除対応版
 // ================================
-const GAS_URL = "https://script.google.com/macros/s/AKfycbyDsT6mAM3wPfFpmP9YcMK1vtYRC77MqK3qphXzBrY0P2AQXW273qu2LI1_GeMXLaNjyg/exec";
+const GAS_URL = "https://script.google.com/macros/s/AKfycby44eKCbAxF27mLyn54HAHfCE6FP04BAUdt7rt86LwZmCuMUsPT8dB8QroTBLNk35fw2A/exec";
 
 function $(id){ return document.getElementById(id); }
 function v(id){ return ($(id)?.value || "").trim(); }
