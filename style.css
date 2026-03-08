@@ -21,36 +21,18 @@ body {
   margin-bottom: 18px;
 }
 
-/* 下書きエリア：左右2カラム */
-.draft-layout {
-  display: grid;
-  grid-template-columns: 340px 1fr;
-  gap: 20px;
-  align-items: start;
-  margin-bottom: 22px;
-}
-
-.draft-left {
-  min-width: 0;
-}
-
-.draft-right {
-  min-width: 0;
-}
-
 .draft-toolbar {
   display: flex;
   align-items: center;
   gap: 14px;
-  flex-wrap: nowrap;
+  flex-wrap: wrap;
   margin-bottom: 14px;
 }
 
 .draft-no {
-  width: 70px;
-  min-width: 70px;
+  width: 90px;
   height: 58px;
-  padding: 0 10px;
+  padding: 0 12px;
   border: 1px solid #c7ced8;
   border-radius: 18px;
   background: #ffffff;
@@ -67,12 +49,7 @@ body {
   font-size: 16px;
   font-weight: 700;
   cursor: pointer;
-  transition: opacity 0.2s ease;
   white-space: nowrap;
-}
-
-.btn:hover {
-  opacity: 0.92;
 }
 
 .btn-primary {
@@ -85,19 +62,62 @@ body {
   color: #14213d;
 }
 
-.btn-danger {
-  background: #e53935;
-  color: #ffffff;
-}
-
 .draft-note {
-  margin: 0;
+  margin: 0 0 18px;
   color: #5d6a7d;
   font-size: 14px;
   line-height: 1.8;
 }
 
-/* 一覧 */
+.status-summary-wrap {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr 1fr;
+  gap: 16px;
+  margin-bottom: 22px;
+}
+
+.status-summary-card {
+  background: #ffffff;
+  border: 1px solid #d7dce3;
+  border-radius: 18px;
+  padding: 16px;
+}
+
+.status-summary-card.working {
+  background: #f7faff;
+  border-color: #cfe0f5;
+}
+
+.status-summary-card.returned {
+  background: #fff7f7;
+  border-color: #efcaca;
+}
+
+.status-summary-card.approved {
+  background: #f7fbf7;
+  border-color: #cfe3cf;
+}
+
+.status-summary-title {
+  font-size: 15px;
+  color: #5d6a7d;
+  margin-bottom: 6px;
+  font-weight: 700;
+}
+
+.status-summary-count {
+  font-size: 20px;
+  font-weight: 700;
+  margin-bottom: 10px;
+  color: #14213d;
+}
+
+.summary-btn {
+  min-width: 120px;
+  height: 44px;
+  padding: 0 14px;
+}
+
 .draft-list-wrap {
   padding: 20px;
   border: 1px solid #d7dce3;
@@ -109,10 +129,6 @@ body {
 .draft-list-wrap h3 {
   margin: 0 0 14px;
   font-size: 18px;
-}
-
-.draftSheetList {
-  width: 100%;
 }
 
 .draftTable {
@@ -149,7 +165,6 @@ body {
 .draftBtns {
   display: flex;
   gap: 10px;
-  justify-content: flex-start;
   align-items: center;
 }
 
@@ -172,58 +187,6 @@ body {
   color: #fff;
 }
 
-.section-line {
-  border: none;
-  border-top: 1px solid #d7dce3;
-  margin: 20px 0 22px;
-}
-
-/* 状態サマリー */
-.status-summary-wrap {
-  display: grid;
-  grid-template-columns: 1fr 1fr 1fr;
-  gap: 16px;
-  margin-bottom: 22px;
-}
-
-.status-summary-card {
-  background: #ffffff;
-  border: 1px solid #d7dce3;
-  border-radius: 18px;
-  padding: 16px;
-}
-
-.status-summary-card.returned {
-  background: #fff7f7;
-  border-color: #efcaca;
-}
-
-.status-summary-card.approved {
-  background: #f7fbf7;
-  border-color: #cfe3cf;
-}
-
-.status-summary-title {
-  font-size: 16px;
-  color: #5d6a7d;
-  margin-bottom: 6px;
-  font-weight: 700;
-}
-
-.status-summary-count {
-  font-size: 20px;
-  font-weight: 700;
-  margin-bottom: 10px;
-  color: #14213d;
-}
-
-.summary-btn {
-  min-width: 120px;
-  height: 44px;
-  padding: 0 14px;
-}
-
-/* 差し戻し欄 */
 .return-box {
   margin-bottom: 24px;
   padding: 18px;
@@ -268,29 +231,39 @@ body {
   min-height: 72px;
 }
 
-/* フォーム */
+.section-line {
+  border: none;
+  border-top: 1px solid #d7dce3;
+  margin: 20px 0 22px;
+}
+
 .form-row {
   display: grid;
   gap: 16px;
   margin-bottom: 18px;
 }
 
-.form-row-1 {
-  grid-template-columns: 1fr;
+.form-row-top {
+  grid-template-columns: 1fr 1fr 1fr;
 }
 
-.form-row-4 {
+.form-row-kms {
+  grid-template-columns: 1fr 1fr 1fr;
+}
+
+.form-row-title-content {
+  grid-template-columns: 1fr 2.2fr;
+  align-items: start;
+}
+
+.form-row-money {
   grid-template-columns: 1fr 1fr 1fr 1fr;
-}
-
-.form-row-6 {
-  grid-template-columns: 1fr 1fr 1fr 1fr 1.4fr 1.4fr;
 }
 
 .field {
   display: flex;
   flex-direction: column;
-  margin-bottom: 16px;
+  margin-bottom: 12px;
 }
 
 label {
@@ -323,7 +296,7 @@ select {
 }
 
 textarea {
-  min-height: 140px;
+  min-height: 220px;
   resize: vertical;
 }
 
@@ -336,21 +309,16 @@ input[type="file"]:focus {
   border-color: #5677b8;
 }
 
-.error,
-.is-error,
-input.error,
-select.error,
-textarea.error {
-  border-color: #e24a4a !important;
-  background: #fffafa;
+.note-block {
+  font-size: 14px;
+  line-height: 1.9;
+  color: #334155;
+  margin-top: 4px;
+  margin-bottom: 18px;
 }
 
-.ringi-box {
-  padding: 16px 18px;
-  background: #ffffff;
-  border: 1px solid #c7ced8;
-  border-radius: 18px;
-  margin-bottom: 18px;
+.indent-note {
+  padding-left: 2em;
 }
 
 .file-field {
@@ -428,31 +396,23 @@ textarea.error {
   color: #5d6a7d;
 }
 
-/* レスポンシブ */
-@media (max-width: 1400px) {
-  .draft-layout {
-    grid-template-columns: 1fr;
-  }
-
-  .form-row-6 {
-    grid-template-columns: 1fr 1fr 1fr;
-  }
-}
-
 @media (max-width: 1200px) {
+  .status-summary-wrap {
+    grid-template-columns: 1fr 1fr;
+  }
+
   .draftHead,
   .draftRow {
     grid-template-columns: 80px 140px 110px 1fr 180px 130px;
   }
-
-  .form-row-4 {
-    grid-template-columns: 1fr 1fr;
-  }
 }
 
 @media (max-width: 900px) {
-  .status-summary-wrap,
-  .return-grid {
+  .form-row-top,
+  .form-row-kms,
+  .form-row-money,
+  .return-grid,
+  .form-row-title-content {
     grid-template-columns: 1fr;
   }
 }
@@ -474,8 +434,7 @@ textarea.error {
     min-width: 0;
   }
 
-  .form-row-6,
-  .form-row-4 {
+  .status-summary-wrap {
     grid-template-columns: 1fr;
   }
 
@@ -487,74 +446,10 @@ textarea.error {
     grid-template-columns: 1fr;
   }
 
-  .draftBtns {
-    justify-content: flex-start;
-  }
-
   .fileItemRow,
   .action-row,
   .file-row {
     flex-direction: column;
     align-items: stretch;
-  }
-}
-.status-summary-wrap {
-  display: grid;
-  grid-template-columns: 1fr 1fr 1fr 1fr;
-  gap: 16px;
-  margin-bottom: 22px;
-}
-
-.status-summary-card {
-  background: #ffffff;
-  border: 1px solid #d7dce3;
-  border-radius: 18px;
-  padding: 16px;
-}
-
-.status-summary-card.working {
-  background: #f7faff;
-  border-color: #cfe0f5;
-}
-
-.status-summary-card.returned {
-  background: #fff7f7;
-  border-color: #efcaca;
-}
-
-.status-summary-card.approved {
-  background: #f7fbf7;
-  border-color: #cfe3cf;
-}
-
-.status-summary-title {
-  font-size: 14px;
-  color: #5d6a7d;
-  margin-bottom: 8px;
-  font-weight: 700;
-}
-
-.status-summary-count {
-  font-size: 28px;
-  font-weight: 700;
-  margin-bottom: 12px;
-  color: #14213d;
-}
-
-.summary-btn {
-  min-width: 120px;
-  height: 44px;
-  padding: 0 14px;
-}
-
-@media (max-width: 1000px) {
-  .status-summary-wrap {
-    grid-template-columns: 1fr 1fr;
-  }
-}
-
-@media (max-width: 720px) {
-  .status-summary-wrap {
-    grid-template-columns: 1fr;
   }
 }
