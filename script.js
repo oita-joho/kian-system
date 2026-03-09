@@ -590,6 +590,33 @@ async function deleteDraftByStatus(index) {
     setStatus("下書き削除エラー: " + err);
   }
 }
+async function markApprovedDone(kianId) {
+  if (!kianId) return;
+
+  if (!confirm("この承認済データを確定しますか？")) return;
+
+  try {
+    setStatus("確定処理中...");
+
+    const data = await api_({
+      action: "markDone",
+      kianId
+    });
+
+    if (!data.ok) {
+      setStatus("確定失敗: " + (data.message || "unknown"));
+      return;
+    }
+
+    setStatus("確定しました");
+    await loadStatusCounts();
+    await loadAllStatusLists();
+
+  } catch (err) {
+    setStatus("確定エラー: " + err);
+  }
+}
+window.markApprovedDone = markApprovedDone;
 window.deleteDraftByStatus = deleteDraftByStatus;
 
 // ================================
