@@ -1,3 +1,4 @@
+//
 const GAS_URL = "https://script.google.com/macros/s/AKfycbzT5KyySZTvWShiuqsOMY-BV3q4Udnw9HpGPYycJ_t9iq2SHmggFj22AsC1LbKLHEa9TA/exec";
 
 function $(id) {
