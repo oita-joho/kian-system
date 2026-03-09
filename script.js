@@ -1,12 +1,11 @@
-//
-const GAS_URL = "https://script.google.com/macros/s/AKfycbzwiLcSMXpXxQD3Z17X8CnipLfueqd9kHPHBPYKvowO5SxzYZStxCtI0qhh-mfEFO1ndA/exec";
+const GAS_URL = "https://script.google.com/macros/s/AKfycbwdXfLyVByUKJQOey9gbq7_Ra2lvzUu6nDwIbX1HFIUfWNsI7Gp4IbsjKiPpe93j_bd7g/exec";
 
-const SUMMARY_CONFIG = [
-  { key: "draft",    countId: "countDraft",    wrapId: "draftListWrap",    listId: "draftSheetList",    title: "下書き一覧" },
-  { key: "pending",  countId: "countPending",  wrapId: "pendingListWrap",  listId: "pendingSheetList",  title: "起案中一覧" },
-  { key: "returned", countId: "countReturned", wrapId: "returnedListWrap", listId: "returnedSheetList", title: "差し戻し一覧" },
-  { key: "approved", countId: "countApproved", wrapId: "approvedListWrap", listId: "approvedSheetList", title: "承認済一覧" }
-];
+const SUMMARY_CONFIG = {
+  draft:    { countId: "countDraft",    wrapId: "draftListWrap",    listId: "draftSheetList" },
+  pending:  { countId: "countPending",  wrapId: "pendingListWrap",  listId: "pendingSheetList" },
+  returned: { countId: "countReturned", wrapId: "returnedListWrap", listId: "returnedSheetList" },
+  approved: { countId: "countApproved", wrapId: "approvedListWrap", listId: "approvedSheetList" }
+};
 
 const caches = {
   draft: [],
@@ -53,21 +52,25 @@ async function api(payload) {
   }
 }
 
-/* ---------------- UI ---------------- */
+/* ---------- UI ---------- */
 
 function syncCommonToHiddenFields() {
   const type = $("type")?.value || "";
+  const title = v("commonTitle");
+  const writer = v("commonWriter");
+  const content = v("commonContent");
+
   const map = {
     shishutsu: ["s_title", "s_writer", "s_content"],
     shuunyuu:  ["r_title", "r_writer", "r_content"],
     ringi:     ["g_title", "g_writer", "g_content"]
   };
+
   const ids = map[type];
   if (!ids) return;
 
-  const values = [v("commonTitle"), v("commonWriter"), v("commonContent")];
-  ids.forEach((id, i) => {
-    if ($(id)) $(id).value = values[i];
+  [title, writer, content].forEach((value, i) => {
+    if ($(ids[i])) $(ids[i]).value = value;
   });
 }
 
@@ -85,8 +88,7 @@ function applyTypeUI() {
     ringi:     ["金額", "相手先", "方法", "年月日"]
   }[type] || ["金額", "相手先", "方法", "年月日"];
 
-  const ids = ["labelAmount", "labelPartner", "labelMethod", "labelDate"];
-  ids.forEach((id, i) => {
+  ["labelAmount", "labelPartner", "labelMethod", "labelDate"].forEach((id, i) => {
     if ($(id)) $(id).textContent = labels[i];
   });
 
@@ -94,10 +96,10 @@ function applyTypeUI() {
 }
 
 function bindSeiriNoRule() {
-  const seiri = $("seiriNo");
-  if (!seiri) return;
-  seiri.addEventListener("input", () => {
-    seiri.value = seiri.value.replace(/[^0-9]/g, "").replace(/^0+/, "");
+  const el = $("seiriNo");
+  if (!el) return;
+  el.addEventListener("input", () => {
+    el.value = el.value.replace(/[^0-9]/g, "").replace(/^0+/, "");
   });
 }
 
@@ -122,7 +124,7 @@ function showReturnComments(item) {
   b.textContent = textB || "なし";
 }
 
-/* ---------------- files ---------------- */
+/* ---------- files ---------- */
 
 function renderSelectedFiles() {
   const box = $("fileList");
@@ -146,15 +148,18 @@ function renderSelectedFiles() {
 window.removeSelectedFile = function(index) {
   selectedFiles.splice(index, 1);
   renderSelectedFiles();
+  setStatus(`添付を削除しました（${selectedFiles.length}件）`);
 };
 
 function addSelectedFile() {
   const input = $("fileOne");
   const file = input?.files?.[0];
+
   if (!file) {
     setStatus("追加するファイルを選んでください。");
     return;
   }
+
   if (selectedFiles.length >= 5) {
     setStatus("添付は最大5件です。");
     input.value = "";
@@ -166,6 +171,7 @@ function addSelectedFile() {
     f.size === file.size &&
     f.lastModified === file.lastModified
   );
+
   if (duplicated) {
     setStatus("同じファイルは追加済みです。");
     input.value = "";
@@ -175,6 +181,7 @@ function addSelectedFile() {
   selectedFiles.push(file);
   input.value = "";
   renderSelectedFiles();
+  setStatus(`添付を追加しました（${selectedFiles.length}件）`);
 }
 
 function clearSelectedFiles() {
@@ -192,7 +199,7 @@ function readFileAsDataURL(file) {
   });
 }
 
-/* ---------------- payload ---------------- */
+/* ---------- payload ---------- */
 
 async function buildPayload() {
   syncCommonToHiddenFields();
@@ -254,12 +261,12 @@ function validate(payload) {
     if (!payload.amount) return "未入力：収入金額";
     if (!payload.payer) return "未入力：納入者";
   }
-  if ((payload.attachments || []).length > 5) return "添付は5件までです";
 
+  if ((payload.attachments || []).length > 5) return "添付は5件までです";
   return "";
 }
 
-/* ---------------- actions ---------------- */
+/* ---------- actions ---------- */
 
 function clearForm() {
   [
@@ -333,7 +340,7 @@ async function saveDraftByNo() {
   }
 }
 
-/* ---------------- summary counts ---------------- */
+/* ---------- counts ---------- */
 
 async function loadStatusCounts() {
   try {
@@ -343,14 +350,14 @@ async function loadStatusCounts() {
       return;
     }
 
-    const values = {
+    const counts = {
       countDraft: data.draft ?? 0,
       countPending: data.pending ?? 0,
       countReturned: data.returned ?? 0,
       countApproved: data.approved ?? 0
     };
 
-    Object.entries(values).forEach(([id, value]) => {
+    Object.entries(counts).forEach(([id, value]) => {
       if ($(id)) $(id).textContent = value;
     });
   } catch (err) {
@@ -359,11 +366,27 @@ async function loadStatusCounts() {
   }
 }
 
-/* ---------------- list rendering ---------------- */
+/* ---------- lists ---------- */
+
+function actionButtons(mode, item, index) {
+  const buttons = [];
+
+  if (mode === "draft" || mode === "returned") {
+    buttons.push(`<button class="mini-btn primary" onclick="restoreItem('${mode}', ${index})">復元</button>`);
+  }
+  if (mode === "draft") {
+    buttons.push(`<button class="mini-btn danger" onclick="deleteDraftItem(${index})">削除</button>`);
+  }
+  if (mode === "approved") {
+    buttons.push(`<button class="mini-btn done" onclick="markApprovedDone('${item.kianId}')">確定</button>`);
+  }
+
+  return buttons.join("");
+}
 
 function renderStatusTable(mode, items) {
-  const config = SUMMARY_CONFIG.find(x => x.key === mode);
-  const box = $(config.listId);
+  const cfg = SUMMARY_CONFIG[mode];
+  const box = $(cfg.listId);
   if (!box) return;
 
   if (!items?.length) {
@@ -388,17 +411,7 @@ function renderStatusTable(mode, items) {
           <div>${escapeHtml(item.seiriNo || "")}</div>
           <div class="data-title">${escapeHtml(item.title || "(件名なし)")}</div>
           <div>${escapeHtml(item.updatedAt || item.createdAt || "")}</div>
-          <div class="row-actions">
-            ${mode === "draft" || mode === "returned"
-              ? `<button class="mini-btn primary" onclick="restoreItem('${mode}', ${index})">復元</button>`
-              : ""}
-            ${mode === "draft"
-              ? `<button class="mini-btn danger" onclick="deleteDraftItem(${index})">削除</button>`
-              : ""}
-            ${mode === "approved"
-              ? `<button class="mini-btn done" onclick="markApprovedDone('${escapeHtml(item.kianId || "")}')">確定</button>`
-              : ""}
-          </div>
+          <div class="row-actions">${actionButtons(mode, item, index)}</div>
         </div>
       `).join("")}
     </div>
@@ -418,7 +431,9 @@ async function loadAllStatusLists() {
     caches.returned = data.returnedItems || [];
     caches.approved = data.approvedItems || [];
 
-    SUMMARY_CONFIG.forEach(cfg => renderStatusTable(cfg.key, caches[cfg.key]));
+    Object.keys(SUMMARY_CONFIG).forEach(mode => {
+      renderStatusTable(mode, caches[mode]);
+    });
   } catch (err) {
     console.error(err);
     setStatus("一覧の取得に失敗しました");
@@ -426,19 +441,19 @@ async function loadAllStatusLists() {
 }
 
 async function showList(mode) {
-  const config = SUMMARY_CONFIG.find(x => x.key === mode);
-  if (!config) return;
+  const cfg = SUMMARY_CONFIG[mode];
+  if (!cfg) return;
   await loadAllStatusLists();
-  $(config.wrapId).style.display = "";
+  $(cfg.wrapId).style.display = "";
 }
 
 function hideList(mode) {
-  const config = SUMMARY_CONFIG.find(x => x.key === mode);
-  if (!config) return;
-  $(config.wrapId).style.display = "none";
+  const cfg = SUMMARY_CONFIG[mode];
+  if (!cfg) return;
+  $(cfg.wrapId).style.display = "none";
 }
 
-/* ---------------- row operations ---------------- */
+/* ---------- row operations ---------- */
 
 window.restoreItem = function(mode, index) {
   const item = caches[mode]?.[index];
@@ -512,10 +527,10 @@ window.markApprovedDone = async function(kianId) {
   }
 };
 
-/* ---------------- init ---------------- */
+/* ---------- init ---------- */
 
 function bindSummaryButtons() {
-  const map = {
+  const binds = {
     btnToggleDraftListTop: () => showList("draft"),
     btnShowDraft: () => showList("draft"),
     btnHideDraft: () => hideList("draft"),
@@ -527,7 +542,7 @@ function bindSummaryButtons() {
     btnHideApproved: () => hideList("approved")
   };
 
-  Object.entries(map).forEach(([id, fn]) => {
+  Object.entries(binds).forEach(([id, fn]) => {
     if ($(id)) $(id).addEventListener("click", fn);
   });
 }
@@ -539,6 +554,7 @@ window.addEventListener("load", async () => {
   showReturnComments(null);
 
   if ($("type")) $("type").addEventListener("change", applyTypeUI);
+
   ["commonTitle", "commonWriter", "commonContent"].forEach(id => {
     if ($(id)) $(id).addEventListener("input", syncCommonToHiddenFields);
   });
