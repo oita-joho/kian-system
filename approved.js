@@ -1,5 +1,5 @@
 //
-const GAS_URL = "https://script.google.com/macros/s/AKfycbzT5KyySZTvWShiuqsOMY-BV3q4Udnw9HpGPYycJ_t9iq2SHmggFj22AsC1LbKLHEa9TA/exec";
+const GAS_URL = "https://script.google.com/macros/s/AKfycbzwiLcSMXpXxQD3Z17X8CnipLfueqd9kHPHBPYKvowO5SxzYZStxCtI0qhh-mfEFO1ndA/exec";
 
 function $(id) {
   return document.getElementById(id);
