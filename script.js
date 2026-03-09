@@ -604,7 +604,11 @@ async function openListWithLoad(boxId) {
   await loadAllStatusLists();
   box.style.display = "";
 }
-
+function hideList(boxId) {
+  const box = $(boxId);
+  if (!box) return;
+  box.style.display = "none";
+}
 // ================================
 // 初期化
 // ================================
