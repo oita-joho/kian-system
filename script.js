@@ -493,7 +493,7 @@ function renderStatusTable(listId, items, mode) {
             }
             ${
               mode === "approved"
-                ? `<button class="miniBtn miniPrimary" onclick="markApprovedDone('${escapeHtml_(d.kianId || "")}')">確定</button>`
+                ? `? `<button class="miniBtn miniDone" onclick="markApprovedDone('${escapeHtml_(d.kianId || "")}')">確定</button>`
                 : ""
             }
           </div>
